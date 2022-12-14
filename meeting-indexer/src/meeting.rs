@@ -1,4 +1,4 @@
-use chrono::{DateTime, Duration, NaiveTime, Utc};
+use chrono::{Duration, NaiveTime};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
 pub struct Position {

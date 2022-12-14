@@ -1,12 +1,7 @@
 mod aa_eu;
 
-use std::future::Future;
-
 use thiserror::Error;
-use tokio::{
-    join,
-    sync::mpsc::{channel, Receiver, Sender},
-};
+use tokio::{join, sync::mpsc::Sender};
 
 use crate::meeting::Meeting;
 

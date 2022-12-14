@@ -1,6 +1,6 @@
 #![feature(async_closure)]
 
-use std::{error::Error, path::PathBuf};
+use std::error::Error;
 
 use clap::{Parser, Subcommand};
 use source::FetchMeetingResult;

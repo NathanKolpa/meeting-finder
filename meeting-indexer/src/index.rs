@@ -1,14 +1,11 @@
 use std::{
     path::Path,
-    sync::{
-        atomic::{AtomicUsize, Ordering},
-        Arc, Mutex, MutexGuard,
-    },
+    sync::{Arc, Mutex},
 };
 
-use r2d2::{Pool, PooledConnection};
+use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
-use rusqlite::{params, Connection, OpenFlags, Transaction};
+use rusqlite::{params, Connection, OpenFlags};
 use thiserror::Error;
 use tokio::task::spawn_blocking;
 
