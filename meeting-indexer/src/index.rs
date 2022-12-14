@@ -21,7 +21,7 @@ pub enum IndexError {
 }
 
 pub struct MeetingIndex {
-    write_conn: Mutex<Connection>,
+    write_conn: Arc<Mutex<Connection>>,
     read_pool: Pool<SqliteConnectionManager>,
 }
 
@@ -37,7 +37,7 @@ impl MeetingIndex {
             .with_flags(OpenFlags::SQLITE_OPEN_READ_ONLY);
 
         Ok(Self {
-            write_conn: Mutex::new(conn),
+            write_conn: Arc::new(Mutex::new(conn)),
             read_pool: Pool::builder().build(manager).unwrap(),
         })
     }
@@ -77,6 +77,18 @@ impl MeetingIndex {
     }
 
     pub async fn commit_staging(&self) -> Result<(), IndexError> {
+        let write_conn = self.write_conn.clone();
+
+        spawn_blocking(move || -> Result<(), IndexError> {
+            let mut conn = write_conn.lock().unwrap();
+            let tx = conn.transaction()?;
+
+            tx.commit()?;
+            Ok(())
+        })
+        .await
+        .unwrap()?;
+
         Ok(())
     }
 }
