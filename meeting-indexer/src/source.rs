@@ -1,19 +1,18 @@
-mod aa;
+mod aa_eu;
 
-use async_trait::async_trait;
+use thiserror::Error;
 use tokio::{join, sync::mpsc::Sender};
 
 use crate::meeting::Meeting;
 
-pub enum MeetingFetchError {}
+#[derive(Error, Debug)]
+pub enum MeetingFetchError {
+    #[error("HTTP Request error: {0}")]
+    HttpRequestError(#[from] reqwest::Error),
+}
 
 pub type FetchMeetingResult = Result<Vec<Meeting>, MeetingFetchError>;
 
-#[async_trait]
-trait MeetingSource {
-    async fn fetch_meetings(output: Sender<FetchMeetingResult>);
-}
-
 pub async fn fetch_all_meetings(output: Sender<FetchMeetingResult>) {
-    join!(aa::AA::fetch_meetings(output.clone()));
+    join!(aa_eu::fetch_meetings(output.clone()));
 }
