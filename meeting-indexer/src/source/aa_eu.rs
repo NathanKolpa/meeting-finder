@@ -133,6 +133,7 @@ impl TryInto<Meeting> for AAMeeting {
         let day = self.day.ok_or(ConvertError::MissingField)?;
 
         Ok(Meeting {
+            org: Organization::AnonymousAlcoholics,
             contact: Contact {
                 email: self.email,
                 phone: self.phone,
