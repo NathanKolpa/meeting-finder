@@ -64,7 +64,7 @@ impl MeetingIndex {
             duration TEXT NOT NULL,
             day INTEGER NULL,
             time TEXT NULL
-
+            staging INTEGER NOT NULL
         )",
             params![],
         )?;

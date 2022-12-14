@@ -7,7 +7,6 @@ use source::FetchMeetingResult;
 use tokio::{
     join,
     sync::mpsc::{channel, Receiver},
-    task::spawn_blocking,
 };
 
 pub mod index;
