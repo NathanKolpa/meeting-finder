@@ -69,6 +69,10 @@ impl MeetingIndex {
         Ok(())
     }
 
+    pub async fn clear_staging(&self) -> Result<(), IndexError> {
+        Ok(())
+    }
+
     pub async fn add_meetings_to_staging(&self, meetings: Vec<Meeting>) -> Result<(), IndexError> {
         Ok(())
     }
@@ -79,6 +83,13 @@ impl MeetingIndex {
         spawn_blocking(move || -> Result<(), IndexError> {
             let mut conn = write_conn.lock().unwrap();
             let tx = conn.transaction()?;
+
+            tx.execute("DELETE FROM meetings where staging = 0", params![])?;
+
+            tx.execute(
+                "UPDATE meetings SET staging = 0 WHERE staging = 1",
+                params![],
+            )?;
 
             tx.commit()?;
             Ok(())

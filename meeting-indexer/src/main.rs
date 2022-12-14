@@ -69,6 +69,8 @@ async fn add_meetings_to_index(mut rx: Receiver<FetchMeetingResult>, index: &ind
 }
 
 async fn sync_index(index: &index::MeetingIndex) -> Result<(), index::IndexError> {
+    index.clear_staging().await?;
+
     let (tx, rx) = channel(1024);
     join!(
         source::fetch_all_meetings(tx),
