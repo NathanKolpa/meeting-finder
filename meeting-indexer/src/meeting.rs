@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use chrono::{Duration, NaiveTime};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
@@ -39,6 +41,29 @@ pub enum MeetingTime {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Organization {
     AnonymousAlcoholics,
+}
+
+impl ToString for Organization {
+    fn to_string(&self) -> String {
+        match self {
+            Organization::AnonymousAlcoholics => String::from("AnonymousAlcoholics"),
+        }
+    }
+}
+
+pub enum OrganizationParseError {
+    UnknownOrg,
+}
+
+impl FromStr for Organization {
+    type Err = OrganizationParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "AnonymousAlcoholics" => Ok(Self::AnonymousAlcoholics),
+            _ => Err(OrganizationParseError::UnknownOrg),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]

@@ -3,13 +3,11 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use r2d2::Pool;
-use r2d2_sqlite::SqliteConnectionManager;
 use rusqlite::{params, Connection, OpenFlags, Transaction};
 use thiserror::Error;
 use tokio::task::spawn_blocking;
 
-use crate::meeting::Meeting;
+use crate::meeting::{Meeting, MeetingTime};
 
 #[derive(Error, Debug)]
 pub enum IndexError {
@@ -23,6 +21,39 @@ pub struct MeetingImport<'index> {
 
 impl<'index> MeetingImport<'index> {
     pub async fn add_meetings(&self, meetings: Vec<Meeting>) -> Result<(), IndexError> {
+        for meeting in meetings {
+            let mut meeting_day = None;
+            let mut meeting_time = None;
+
+            match &meeting.time {
+                MeetingTime::Recurring { day, time } => {
+                    meeting_day = Some(day);
+                    meeting_time = Some(time);
+                }
+            }
+
+            self.tx.execute(
+                "INSERT INTO meetings(latitude, longitude, location_name, location_notes, country, region, address, notes, org, confrence_url, phone, email, duration, day, time)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                params![
+                    meeting.location.position.as_ref().map(|p| p.latitude),
+                    meeting.location.position.as_ref().map(|p| p.longitude),
+                    meeting.location.location_name,
+                    meeting.location.location_notes,
+                    meeting.location.country,
+                    meeting.location.region,
+                    meeting.location.address,
+                    meeting.notes,
+                    meeting.org.to_string(),
+                    meeting.confrence_url,
+                    meeting.contact.phone,
+                    meeting.contact.email,
+                    meeting.duration.to_string(),
+                    meeting_day,
+                    meeting_time
+                ])?;
+        }
+
         Ok(())
     }
 
@@ -70,7 +101,6 @@ impl MeetingIndex {
             duration TEXT NOT NULL,
             day INTEGER NULL,
             time TEXT NULL
-            staging INTEGER NOT NULL
         )",
             params![],
         )?;
