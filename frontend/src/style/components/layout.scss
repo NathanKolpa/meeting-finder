@@ -1,0 +1,14 @@
+html, body {
+  min-height: 100vh;
+  background-color: $background-color;
+}
+
+main {
+}
+
+@include mobilefirst($medium-break) {
+  main {
+    margin: auto;
+    width: 80%;
+  }
+}

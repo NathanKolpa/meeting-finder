@@ -1,0 +1,28 @@
+button {
+  padding: $padding;
+
+  background: transparent;
+  border: 1px solid $primary-color;
+  border-radius: $border-radius;
+  color: $primary-color;
+
+  text-align: center;
+  text-decoration: none;
+  font-family: $fonts;
+  font-size: $font-size;
+
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    background: $primary-color;
+    border-color: $primary-color;
+    color: $white;
+    text-decoration: none;
+  }
+
+  &:active {
+    background: darken($primary-color, 10);
+    border-color: darken($primary-color, 10);
+  }
+}

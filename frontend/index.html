@@ -1,27 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Meeting Finder</title>
-	</head>
-	<body>
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Meeting Finder</title>
+</head>
+<body>
 
-		<main>
-			<div id="top"></div>
-			<h1>Find meetings near your location</h1>
+<main>
+    <div id="top"></div>
+    <h1>Find recovery meetings near you</h1>
 
-			<div id="map"></div>
 
-			<article>
-				<h2>About us</h2>
-				<p>
+    <div class="meeting-finder">
+        <div class="search">
+            <form method="GET">
+                <label>
+                    <input type="text" placeholder="Enter a city, address, postal code, etc..." name="location">
+                </label>
 
-				</p>
-			</article>
+                <select name="distance">
+                    <option value="10">10 km</option>
+                    <option value="25">25 km</option>
+                    <option value="50" selected>50 km</option>
+                    <option value="100">100 km</option>
+                    <option value="200">200 km</option>
+                    <option value="all">&#62; 200 km</option>
+                </select>
 
-		</main>
+                <button>Search</button>
+            </form>
 
-		<script type="module" src="/src/main.ts"></script>
-	</body>
+            <p class="loading">Loading meetings...</p>
+        </div>
+
+        <div id="map"></div>
+    </div>
+
+    <section>
+        <h2>About us</h2>
+
+        <p>
+
+        </p>
+    </section>
+
+</main>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
 </html>

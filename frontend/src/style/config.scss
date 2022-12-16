@@ -1,0 +1,35 @@
+$small-break: 576px;
+$medium-break: 768px;
+$large-break: 992px;
+$extra-large-break: 1200px;
+
+$border-radius: 5px;
+$padding: 10px;
+
+$fonts: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+$font-size: 100%;
+$line-height: 44px;
+
+// https://clrs.cc/
+$aqua:  #7fdbff;
+$blue:  #0074d9;
+$navy:  #001f3f;
+$teal:  #39cccc;
+$green: #2ecc40;
+$olive: #3d9970;
+$lime:  #01ff70;
+$yellow:  #ffdc00;
+$orange:  #ff851b;
+$red:     #ff4136;
+$fuchsia: #f012be;
+$purple:  #b10dc9;
+$maroon:  #85144b;
+$white:  #fff;
+$silver: #ddd;
+$grey:   #aaa;
+$black:  #111;
+
+$primary-color: #2f39d3;
+$secondary-color: $grey;
+
+$background-color: #f9f9f9;

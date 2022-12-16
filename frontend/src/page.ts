@@ -4,15 +4,24 @@ export function showMeetingInfoPopup() {
 
 }
 
-export function loadMap() {
-	const mapLayer = L.tileLayer('https://tile.mierune.co.jp/mierune_mono/{z}/{x}/{y}.png', {
-		attribution: "Maptiles by <a href='http://mierune.co.jp/' target='_blank'>MIERUNE</a>, under CC BY. Data by <a href='http://osm.org/copyright' target='_blank'>OpenStreetMap</a> contributors, under ODbL."
-	});
+function loadMap() {
+    const mapLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        noWrap: true,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    })
 
-	const map = L.map('map', {
-		center: [35.681, 139.767],
-		zoom: 11,
-		zoomControl: true,
-		layers: [m_mono]
-	});
+    const map = L.map('map', {
+        zoomControl: true,
+        zoom: 2,
+        minZoom: 2,
+        center: {lng: 0, lat: 0},
+        layers: [mapLayer]
+    });
+
+    map.setMaxBounds(map.getBounds());
+}
+
+export function initialize() {
+    loadMap();
 }

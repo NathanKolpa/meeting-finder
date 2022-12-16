@@ -1,0 +1,36 @@
+.meeting-finder {
+  width: 100%;
+  display: flex;
+  column-count: 12;
+  flex-wrap: wrap;
+  height: 80vh;
+
+  flex-direction: column-reverse;
+
+  .search {
+    flex: 12;
+  }
+
+  #map {
+    flex: 12;
+  }
+
+
+  @include mobilefirst($extra-large-break) {
+    flex-direction: row;
+
+    .search {
+      flex: 4;
+    }
+
+    #map {
+      flex: 8;
+    }
+  }
+}
+
+.loading {
+  font-style: italic;
+
+  margin-top: 25px;
+}
