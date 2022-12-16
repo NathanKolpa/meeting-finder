@@ -68,6 +68,7 @@ impl FromStr for Organization {
 
 #[derive(Debug, Clone)]
 pub struct Meeting {
+    pub name: String,
     pub contact: Contact,
     pub location: Location,
     pub confrence_url: Option<String>,

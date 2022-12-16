@@ -33,8 +33,8 @@ impl<'index> MeetingImport<'index> {
             }
 
             self.tx.execute(
-                "INSERT INTO meetings(latitude, longitude, location_name, location_notes, country, region, address, notes, org, confrence_url, phone, email, duration, day, time)
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO meetings(latitude, longitude, location_name, location_notes, country, region, address, name, notes, org, confrence_url, phone, email, duration, day, time)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 params![
                     meeting.location.position.as_ref().map(|p| p.latitude),
                     meeting.location.position.as_ref().map(|p| p.longitude),
@@ -43,6 +43,7 @@ impl<'index> MeetingImport<'index> {
                     meeting.location.country,
                     meeting.location.region,
                     meeting.location.address,
+                    meeting.name,
                     meeting.notes,
                     meeting.org.to_string(),
                     meeting.confrence_url,
@@ -90,7 +91,7 @@ impl MeetingIndex {
             region TEXT NULL,
             address TEXT NULL,
 
-
+            name TEXT NOT NULL,
             notes TEXT NULL,
             org TEXT NOT NULL,
             confrence_url TEXT NULL,
