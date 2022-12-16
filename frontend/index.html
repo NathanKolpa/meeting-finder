@@ -11,7 +11,7 @@
 
 <main>
     <div id="top"></div>
-    <h1>Find recovery meetings near you.</h1>
+    <h1>Find meetings near your location.</h1>
 
 
     <div class="meeting-finder">
@@ -21,14 +21,16 @@
                     <input type="text" placeholder="Enter a city, address, postal code, etc..." name="location">
                 </label>
 
-                <select name="distance">
-                    <option value="10">10 km</option>
-                    <option value="25">25 km</option>
-                    <option value="50" selected>50 km</option>
-                    <option value="100">100 km</option>
-                    <option value="200">200 km</option>
-                    <option value="all">&#62; 200 km</option>
-                </select>
+                <label>
+                    <select name="distance">
+                        <option value="10">10 km</option>
+                        <option value="25">25 km</option>
+                        <option value="50" selected>50 km</option>
+                        <option value="100">100 km</option>
+                        <option value="200">200 km</option>
+                        <option value="all">&#62; 200 km</option>
+                    </select>
+                </label>
 
                 <button>Search</button>
             </form>
