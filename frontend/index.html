@@ -4,17 +4,19 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Meeting Finder</title>
+
+    <script type="module" src="/src/main.ts"></script>
 </head>
 <body>
 
 <main>
     <div id="top"></div>
-    <h1>Find recovery meetings near you</h1>
+    <h1>Find recovery meetings near you.</h1>
 
 
     <div class="meeting-finder">
         <div class="search">
-            <form method="GET">
+            <form method="GET" class="filters">
                 <label>
                     <input type="text" placeholder="Enter a city, address, postal code, etc..." name="location">
                 </label>
@@ -31,14 +33,18 @@
                 <button>Search</button>
             </form>
 
-            <p class="loading">Loading meetings...</p>
+            <p id="loading" class="loading">Loading meetings...</p>
+
+            <ul id="results" class="results">
+
+            </ul>
         </div>
 
         <div id="map"></div>
     </div>
 
     <section>
-        <h2>About us</h2>
+        <h2 id="about">About</h2>
 
         <p>
 
@@ -47,6 +53,5 @@
 
 </main>
 
-<script type="module" src="/src/main.ts"></script>
 </body>
 </html>
