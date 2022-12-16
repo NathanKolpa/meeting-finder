@@ -5,7 +5,7 @@ use std::{
 
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
-use rusqlite::{params, Connection, OpenFlags};
+use rusqlite::{params, Connection, OpenFlags, Transaction};
 use thiserror::Error;
 use tokio::task::spawn_blocking;
 
@@ -17,9 +17,23 @@ pub enum IndexError {
     SqliteError(#[from] rusqlite::Error),
 }
 
+pub struct MeetingImport<'index> {
+    tx: Transaction<'index>,
+}
+
+impl<'index> MeetingImport<'index> {
+    pub async fn add_meetings(&self, meetings: Vec<Meeting>) -> Result<(), IndexError> {
+        Ok(())
+    }
+
+    pub async fn commit(self) -> Result<(), IndexError> {
+        self.tx.commit()?;
+        Ok(())
+    }
+}
+
 pub struct MeetingIndex {
-    write_conn: Arc<Mutex<Connection>>,
-    read_pool: Pool<SqliteConnectionManager>,
+    conn: Connection,
 }
 
 impl MeetingIndex {
@@ -28,15 +42,10 @@ impl MeetingIndex {
             path,
             OpenFlags::SQLITE_OPEN_CREATE | OpenFlags::SQLITE_OPEN_READ_WRITE,
         )?;
+
         Self::migrate(&mut conn)?;
 
-        let manager = r2d2_sqlite::SqliteConnectionManager::file(path)
-            .with_flags(OpenFlags::SQLITE_OPEN_READ_ONLY);
-
-        Ok(Self {
-            write_conn: Arc::new(Mutex::new(conn)),
-            read_pool: Pool::builder().build(manager).unwrap(),
-        })
+        Ok(Self { conn })
     }
 
     fn migrate(conn: &mut Connection) -> Result<(), IndexError> {
@@ -69,34 +78,9 @@ impl MeetingIndex {
         Ok(())
     }
 
-    pub async fn clear_staging(&self) -> Result<(), IndexError> {
-        Ok(())
-    }
-
-    pub async fn add_meetings_to_staging(&self, meetings: Vec<Meeting>) -> Result<(), IndexError> {
-        Ok(())
-    }
-
-    pub async fn commit_staging(&self) -> Result<(), IndexError> {
-        let write_conn = self.write_conn.clone();
-
-        spawn_blocking(move || -> Result<(), IndexError> {
-            let mut conn = write_conn.lock().unwrap();
-            let tx = conn.transaction()?;
-
-            tx.execute("DELETE FROM meetings where staging = 0", params![])?;
-
-            tx.execute(
-                "UPDATE meetings SET staging = 0 WHERE staging = 1",
-                params![],
-            )?;
-
-            tx.commit()?;
-            Ok(())
+    pub async fn start_import(&mut self) -> Result<MeetingImport<'_>, IndexError> {
+        Ok(MeetingImport {
+            tx: self.conn.transaction()?,
         })
-        .await
-        .unwrap()?;
-
-        Ok(())
     }
 }

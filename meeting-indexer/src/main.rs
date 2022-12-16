@@ -11,6 +11,7 @@ use tokio::{
 
 pub mod index;
 pub mod meeting;
+pub mod server;
 pub mod source;
 
 #[derive(Subcommand)]
@@ -38,11 +39,11 @@ struct Cli {
 async fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
 
-    let index = index::MeetingIndex::open(&std::path::PathBuf::from(cli.db))?;
+    let mut index = index::MeetingIndex::open(&std::path::PathBuf::from(cli.db))?;
 
     match cli.command {
         Commands::Sync => {
-            sync_index(&index).await?;
+            sync_index(&mut index).await?;
         }
         Commands::Serve => todo!(),
     }
@@ -50,13 +51,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-async fn add_meetings_to_index(mut rx: Receiver<FetchMeetingResult>, index: &index::MeetingIndex) {
+async fn add_meetings_to_index(
+    mut rx: Receiver<FetchMeetingResult>,
+    import: &mut index::MeetingImport<'_>,
+) {
     while let Some(result) = rx.recv().await {
         match result {
             Err(e) => eprintln!("Failed to fetch meetings: {}", e),
             Ok(meetings) => {
                 let meeting_count = meetings.len();
-                let result = index.add_meetings_to_staging(meetings).await;
+                let result = import.add_meetings(meetings).await;
 
                 if let Err(e) = result {
                     println!("Failed to add meetings to the staging: {}", e);
@@ -68,15 +72,15 @@ async fn add_meetings_to_index(mut rx: Receiver<FetchMeetingResult>, index: &ind
     }
 }
 
-async fn sync_index(index: &index::MeetingIndex) -> Result<(), index::IndexError> {
-    index.clear_staging().await?;
+async fn sync_index(index: &mut index::MeetingIndex) -> Result<(), index::IndexError> {
+    let mut import = index.start_import().await?;
 
     let (tx, rx) = channel(1024);
     join!(
         source::fetch_all_meetings(tx),
-        add_meetings_to_index(rx, &index)
+        add_meetings_to_index(rx, &mut import)
     );
 
-    index.commit_staging().await?;
+    import.commit().await?;
     Ok(())
 }
