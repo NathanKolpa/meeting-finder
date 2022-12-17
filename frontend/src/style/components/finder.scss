@@ -3,14 +3,13 @@
   display: flex;
   flex-direction: column-reverse;
   height: 90vh;
-
+  min-height: 1000px;
 
   .search {
     flex: 12;
     display: flex;
     flex-direction: column;
     height: 100%;
-    margin: $padding;
 
     .results {
       flex: 1 1 auto;
@@ -18,8 +17,7 @@
   }
 
   #map {
-    flex: 12;
-    margin: $padding;
+    flex: 5;
     height: 100%;
   }
 
@@ -50,15 +48,16 @@
   position: relative;
   height: 100%;
   width: 100%;
-  overflow: hidden;
 }
 
 .results {
   list-style: none;
-  padding: $padding;
   overflow-y: auto;
-  height: 100%;
-  width: 100%;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  padding: $padding;
   position: absolute;
   margin: 0;
 
@@ -69,6 +68,7 @@
     background-color: $white;
     box-shadow: $shadow;
     margin-bottom: $padding;
+    margin-right: $padding;
     display: flex;
 
     transition: background-color 300ms linear;

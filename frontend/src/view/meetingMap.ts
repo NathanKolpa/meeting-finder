@@ -59,7 +59,7 @@ export class MeetingMap {
         this.actions[meeting.id] = {
             remove: () => marker.remove(),
             focus: () => {
-                this.map.flyTo(pos, 8, {
+                this.map.flyTo(pos, 15, {
                     duration: 1,
                     easeLinearity: 1,
                 });

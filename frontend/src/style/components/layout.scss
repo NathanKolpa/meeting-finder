@@ -4,6 +4,7 @@ html, body {
 }
 
 main {
+  padding: $padding;
 }
 
 @include mobilefirst($medium-break) {
