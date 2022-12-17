@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::string::ParseError;
+use std::time::Duration;
 
 use chrono::{DateTime, NaiveTime, ParseResult, Utc};
 use clap::builder::Str;
@@ -199,6 +200,8 @@ impl TryInto<Meeting> for AAMeeting {
             day -= 1;
         }
 
+        // TODO: remove all unwraps
+
         Ok(Meeting {
             online_options: OnlineOptions {
                 is_online: self.region.as_ref().map(|region| region == "--Online--").unwrap_or(false),
@@ -229,7 +232,7 @@ impl TryInto<Meeting> for AAMeeting {
             },
             notes: self.notes,
             duration: (NaiveTime::parse_from_str(&end_time, "%H:%M").unwrap()
-                - NaiveTime::parse_from_str(&time, "%H:%M").unwrap()).to_std().unwrap(),
+                - NaiveTime::parse_from_str(&time, "%H:%M").unwrap()).to_std().unwrap_or(Duration::from_secs(1)),
         })
     }
 }

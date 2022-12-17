@@ -75,6 +75,7 @@ impl WeekDay {
 
 #[derive(Debug, Clone, Serialize)]
 pub enum MeetingTime {
+    #[serde(rename = "recurring")]
     Recurring { day: WeekDay, time: NaiveTime },
 }
 

@@ -3,22 +3,31 @@ name = "meeting-indexer"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.release]
+strip = true
 
 [dependencies]
+
+# Basic utilities
 tokio = { version = "1.23.0", features = ["full"] }
 chrono = { version = "0.4.23", features = ["serde"] }
 thiserror = "1.0.37"
 
+# Fetching
 reqwest = { version = "0.11.13", features = ["json"] }
 select = "0.6.0"
 
+# Json
 serde = { version = "1.0.150", features = ["derive"] }
 serde_json = "1.0.89"
 
+# Database
 rusqlite = { version = "0.28.0", features = ["chrono"] }
 
+# CLI
 clap = { version = "4.0.29", features = ["derive"] }
 
+# REST API
 actix-web = "4"
+actix-cors = "0.6.4"
 env_logger = "0.10.0"

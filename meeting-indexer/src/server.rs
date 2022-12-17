@@ -1,5 +1,7 @@
+use std::error::Error;
 use std::net::IpAddr;
 use std::sync::Arc;
+use actix_cors::Cors;
 
 use serde::{Deserialize, Serialize};
 use actix_web::{App, get, HttpRequest, HttpResponse, HttpServer, middleware::Logger, Responder, ResponseError, web};
@@ -41,8 +43,15 @@ pub async fn start_server(meeting_index: MeetingIndex, address: IpAddr, port: u1
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
     HttpServer::new(move || {
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allowed_methods(vec!["GET"])
+            .block_on_origin_mismatch(false)
+            .max_age(3600);
+
         App::new()
             .wrap(Logger::default())
+            .wrap(cors)
             .app_data(web::Data::new(meeting_index.clone()))
             .service(index)
     })
