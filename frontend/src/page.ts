@@ -82,6 +82,8 @@ function addMeetingToResultList(meeting: Meeting) {
             </ul>
             
             <ul class="actions">
+                <li class="link info">Info</li>
+                <li class="seperator">|</li>
                 <li class="link focus">View on map</li>
             </ul>
             `;
@@ -103,7 +105,13 @@ function addMeetingToResultList(meeting: Meeting) {
     setTextOrRemoveIfNull('Every Sunday 19:00 - 20:00', time);
     setTextOrRemoveIfNull(meeting.online ? 'online' : null, online);
 
-    focus.onclick = createHtmlCallback(meeting, () => onViewOnMapClick);
+    if (!meeting.position) {
+        focus.classList.add('disabled');
+        focus.title = 'No location available'
+    } else {
+        focus.onclick = createHtmlCallback(meeting, () => onViewOnMapClick);
+    }
+
 
     logo.src = getLogoImgUrlByOrg(meeting.org);
 
@@ -143,26 +151,26 @@ interface MapMeetingActions {
 let mapMeetingActionMap: { [id: number]: MapMeetingActions } = {};
 
 function addMeetingToMap(meeting: Meeting) {
+    if (!meeting.position) {
+        return;
+    }
+
+    let pos: L.LatLngExpression = [meeting.position.latitude, meeting.position.longitude];
+
     let icon = getMapIconByOrg(meeting.org);
 
-    let marker = L.marker([meeting.latitude, meeting.longitude], {
+    let marker = L.marker(pos, {
         icon,
         title: meeting.name,
         riseOnHover: true,
     });
-
-    let popup = L.popup({
-        offset: [0, -10]
-    });
-
-    marker.bindPopup(popup);
 
     marker.addEventListener("click", createHtmlCallback(meeting, () => onFocusClick));
 
     mapMeetingActionMap[meeting.id] = {
         remove: () => marker.remove(),
         focus: () => {
-            map.flyTo([meeting.latitude, meeting.longitude], 8, {
+            map.flyTo(pos, 8, {
                 duration: 1,
                 easeLinearity: 1,
             });

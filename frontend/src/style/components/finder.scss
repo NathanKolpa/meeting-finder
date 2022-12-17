@@ -72,6 +72,14 @@
       font-size: 14px;
     }
 
+    .focus {
+      &.disabled {
+        color: $grey;
+        text-decoration: line-through;
+        cursor: default;
+      }
+    }
+
     .logo {
       aspect-ratio: 1/1;
       float: left;
