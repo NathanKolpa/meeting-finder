@@ -3,10 +3,17 @@ $medium-break: 768px;
 $large-break: 992px;
 $extra-large-break: 1200px;
 
-$border-radius: 5px;
+$border-radius: 7px;
+$button-border-radius: $border-radius;
 $padding: 10px;
 
-$fonts: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+@font-face {
+	font-family: 'OpenSans';
+	font-style: normal;
+	src: url(src/assets/fonts/OpenSans-VariableFont_Width.ttf)
+}
+
+$fonts: "OpenSans", sans-serif;
 $font-size: 100%;
 $line-height: 44px;
 
