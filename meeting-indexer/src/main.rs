@@ -3,6 +3,7 @@
 extern crate core;
 
 use std::error::Error;
+use std::net::IpAddr;
 
 use clap::{Parser, Subcommand};
 use source::FetchMeetingResult;
@@ -10,6 +11,7 @@ use tokio::{
     join,
     sync::mpsc::{channel, Receiver},
 };
+use crate::server::start_server;
 
 pub mod index;
 pub mod meeting;
@@ -18,11 +20,17 @@ pub mod source;
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Syncronize the database
+    /// Synchronize the database
     Sync,
 
     /// Launch a webserver
-    Serve,
+    Serve {
+        #[arg(short, long, default_value_t = 8080)]
+        port: u16,
+
+        #[arg(short, long)]
+        address: IpAddr
+    }
 }
 
 #[derive(Parser)]
@@ -47,7 +55,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Commands::Sync => {
             sync_index(&mut index).await?;
         }
-        Commands::Serve => todo!(),
+        Commands::Serve { port, address } => {
+            start_server(index, address, port).await?;
+        }
     }
 
     Ok(())

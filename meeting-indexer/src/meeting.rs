@@ -1,8 +1,10 @@
 use std::str::FromStr;
+use std::time::Duration;
 
-use chrono::{Duration, NaiveTime};
+use chrono::{NaiveTime};
+use serde::{Serialize};
 
-#[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Default, Serialize)]
 pub struct Position {
     pub latitude: f64,
     pub longitude: f64,
@@ -17,7 +19,7 @@ impl Position {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Location {
     pub position: Option<Position>,
     pub location_name: Option<String>,
@@ -27,13 +29,13 @@ pub struct Location {
     pub address: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Contact {
     pub email: Option<String>,
     pub phone: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum WeekDay {
     Monday,
     Tuesday,
@@ -71,12 +73,12 @@ impl WeekDay {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum MeetingTime {
     Recurring { day: WeekDay, time: NaiveTime },
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub enum Organization {
     AnonymousAlcoholics,
 }
@@ -89,6 +91,7 @@ impl ToString for Organization {
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum OrganizationParseError {
     UnknownOrg,
 }
@@ -104,14 +107,14 @@ impl FromStr for Organization {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct OnlineOptions {
     pub online_url: Option<String>,
     pub notes: Option<String>,
     pub is_online: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Meeting {
     pub name: String,
     pub org: Organization,
@@ -124,5 +127,6 @@ pub struct Meeting {
     pub online_options: OnlineOptions,
 
     pub time: MeetingTime,
+
     pub duration: Duration,
 }

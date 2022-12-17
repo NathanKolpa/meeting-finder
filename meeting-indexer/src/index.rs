@@ -2,12 +2,15 @@ use std::{
     path::Path,
     sync::{Arc, Mutex},
 };
+use std::path::PathBuf;
+use std::time::Duration;
+use chrono::{NaiveTime};
 
-use rusqlite::{params, Connection, OpenFlags, Transaction};
+use rusqlite::{Connection, OpenFlags, params, Transaction};
 use thiserror::Error;
 use tokio::task::spawn_blocking;
 
-use crate::meeting::{Meeting, MeetingTime};
+use crate::meeting::*;
 
 #[derive(Error, Debug)]
 pub enum IndexError {
@@ -52,7 +55,7 @@ impl<'index> MeetingImport<'index> {
                     meeting.online_options.online_url,
                     meeting.contact.phone,
                     meeting.contact.email,
-                    meeting.duration.to_string(),
+                    meeting.duration.as_secs(),
                     meeting_day.map(|day| day.to_day_index()),
                     meeting_time
                 ])?;
@@ -74,6 +77,17 @@ impl<'index> MeetingImport<'index> {
 
 pub struct MeetingIndex {
     conn: Connection,
+    path: PathBuf,
+}
+
+impl Clone for MeetingIndex {
+    fn clone(&self) -> Self {
+        Self {
+            path: self.path.clone(),
+            conn: Connection::open_with_flags(&self.path, OpenFlags::SQLITE_OPEN_READ_WRITE)
+                .unwrap(),
+        }
+    }
 }
 
 impl MeetingIndex {
@@ -85,7 +99,7 @@ impl MeetingIndex {
 
         Self::migrate(&mut conn)?;
 
-        Ok(Self { conn })
+        Ok(Self { conn, path: path.to_path_buf() })
     }
 
     fn migrate(conn: &mut Connection) -> Result<(), IndexError> {
@@ -111,7 +125,7 @@ impl MeetingIndex {
             phone TEXT NULL,
             email TEXT NULL,
 
-            duration TEXT NOT NULL,
+            duration INTEGER NOT NULL,
             day INTEGER NULL,
             time TEXT NULL
         )",
@@ -119,6 +133,55 @@ impl MeetingIndex {
         )?;
 
         Ok(())
+    }
+
+    pub async fn search(&self) -> Result<Vec<Meeting>, IndexError> {
+        let mut stmt = self.conn.prepare("SELECT * FROM meetings")?;
+
+        let rows = stmt.query_map(params![], |row| {
+            let position = match (row.get("latitude")?, row.get("longitude")?) {
+                (Some(latitude), Some(longitude)) => {
+                    Some(Position {
+                        latitude,
+                        longitude
+                    })
+                },
+                _ => None
+            };
+
+            // TODO: handle parse errors
+
+            Ok(Meeting {
+                name: row.get("name")?,
+                org: row.get::<_, String>("org")?.parse().unwrap(),
+                notes: row.get("notes")?,
+                source: row.get("source")?,
+                contact: Contact {
+                    email: row.get("email")?,
+                    phone: row.get("phone")?,
+                },
+                location: Location {
+                    position,
+                    location_name: row.get("location_name")?,
+                    location_notes: row.get("location_notes")?,
+                    country: row.get("country")?,
+                    region: row.get("region")?,
+                    address: row.get("address")?,
+                },
+                online_options: OnlineOptions {
+                    online_url: row.get("online_url")?,
+                    notes: row.get("online_notes")?,
+                    is_online: row.get("online")?,
+                },
+                time: MeetingTime::Recurring {
+                    day: WeekDay::from_day_index(row.get("day")?),
+                    time: row.get::<_, String>("time")?.parse().unwrap(),
+                },
+                duration: Duration::from_secs(row.get("duration")?),
+            })
+        })?;
+
+        Ok(rows.filter_map(|r| r.ok()).collect())
     }
 
     pub async fn start_import(&mut self) -> Result<MeetingImport<'_>, IndexError> {

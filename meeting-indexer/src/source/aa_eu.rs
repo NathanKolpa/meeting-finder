@@ -16,7 +16,7 @@ use super::FetchMeetingResult;
 struct Metadata {
     nonce: String,
     meeting_type_map: HashMap<String, String>,
-    endpoint: String
+    endpoint: String,
 }
 
 async fn fetch_metadata() -> Result<Metadata, MeetingFetchError> {
@@ -63,7 +63,7 @@ async fn fetch_metadata() -> Result<Metadata, MeetingFetchError> {
             .unwrap()
             .to_string(),
 
-        meeting_type_map
+        meeting_type_map,
     })
 }
 
@@ -195,8 +195,7 @@ impl TryInto<Meeting> for AAMeeting {
         //
         if day == 0 {
             day = 6;
-        }
-        else {
+        } else {
             day -= 1;
         }
 
@@ -204,7 +203,7 @@ impl TryInto<Meeting> for AAMeeting {
             online_options: OnlineOptions {
                 is_online: self.region.as_ref().map(|region| region == "--Online--").unwrap_or(false),
                 online_url: self.conference_url,
-                notes: self.conference_url_notes
+                notes: self.conference_url_notes,
             },
             name: self.name,
             source: self.url,
@@ -229,8 +228,8 @@ impl TryInto<Meeting> for AAMeeting {
                 time: NaiveTime::parse_from_str(&time, "%H:%M").unwrap(),
             },
             notes: self.notes,
-            duration: NaiveTime::parse_from_str(&end_time, "%H:%M").unwrap()
-                - NaiveTime::parse_from_str(&time, "%H:%M").unwrap(),
+            duration: (NaiveTime::parse_from_str(&end_time, "%H:%M").unwrap()
+                - NaiveTime::parse_from_str(&time, "%H:%M").unwrap()).to_std().unwrap(),
         })
     }
 }
