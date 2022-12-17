@@ -12,6 +12,7 @@
     flex: 12;
     display: flex;
     flex-direction: column;
+    height: 100%;
 
     .results {
       flex: 1 1 auto;
@@ -50,6 +51,7 @@
   overflow-y: auto;
   overflow-x: visible;
   padding: $padding;
+  margin: 0;
 
   .result {
 
@@ -57,11 +59,14 @@
     padding: $padding;
     border-radius: $border-radius;
     background-color: $white;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    box-shadow: $shadow;
     margin-bottom: $padding;
+
+    transition: background-color 300ms linear;
 
     &.active {
       background-color: $silver;
+      transition: none;
     }
 
     .title {

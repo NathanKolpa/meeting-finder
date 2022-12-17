@@ -3,15 +3,13 @@ import {getLogoImgUrlByOrg} from "./logo";
 import {MeetingCallback} from "./callback";
 
 interface ResultListItemActions {
-    setFocus: () => void,
-    clearFocus: () => void
+    focus: () => void,
 }
 
 export class ResultsList {
     private resultsElement: HTMLElement;
     private loadingText: HTMLElement;
     private actions: { [id: number]: ResultListItemActions } = {};
-    private currentFocus: Meeting | null = null;
     private isLoading = true;
     private viewOnMapCallback: MeetingCallback = null;
 
@@ -30,18 +28,7 @@ export class ResultsList {
     }
 
     public focus(meeting: Meeting) {
-        if (this.currentFocus == meeting) {
-            return;
-        }
-
-        const oldFocus = this.currentFocus;
-        this.currentFocus = meeting;
-
-        this.actions[meeting.id]?.setFocus();
-
-        if (oldFocus) {
-            this.actions[oldFocus.id]?.clearFocus();
-        }
+        this.actions[meeting.id]?.focus();
     }
 
     private clear() {
@@ -119,8 +106,28 @@ export class ResultsList {
         logo.src = getLogoImgUrlByOrg(meeting.org);
 
         this.actions[meeting.id] = {
-            clearFocus: () => li.classList.remove('active'),
-            setFocus: () => li.classList.add('active')
+            focus: () => {
+                li.scrollIntoView({
+                    behavior: 'smooth'
+                });
+
+                li.classList.add('active');
+
+                let scrollTimeout: number | null = null;
+                let debounce = () => {
+                    if (scrollTimeout) {
+                        clearTimeout(scrollTimeout);
+                    }
+
+
+                    scrollTimeout = setTimeout(() => {
+                        setTimeout(() => li.classList.remove('active'), 500);
+                    }, 100);
+                };
+
+                this.resultsElement.addEventListener('scroll', debounce);
+                debounce();
+            }
         };
 
         this.resultsElement.appendChild(li);
