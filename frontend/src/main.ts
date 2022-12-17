@@ -1,58 +1,64 @@
 import './style/main.scss'
 
-import * as page from './page';
+import {Meeting} from "./models";
+import {initialize} from "./view";
+
+
+const meetings: Meeting[] = [
+    {
+        id: 1,
+        position: {
+            longitude: 10,
+            latitude: 15,
+        },
+        org: 'AnonymousAlcoholics',
+        country: 'Nederland',
+        region: 'Gelderland',
+        distance: 10,
+        online: true,
+        name: 'Warsaw Friday',
+        conferenceUrl: 'https://alcoholics-anonymous.eu/meetings/?tsml-day=5&tsml-query=test',
+    },
+    {
+        id: 2,
+        position: {
+            longitude: 50,
+            latitude: 50,
+        },
+        org: 'AnonymousAlcoholics',
+        country: 'Nederland',
+        region: 'Gelderland',
+        distance: 10,
+        online: true,
+        name: 'Warsaw Friday',
+        conferenceUrl: 'https://alcoholics-anonymous.eu/meetings/?tsml-day=5&tsml-query=test'
+    },
+    {
+        id: 3,
+        position: null,
+        org: 'AnonymousAlcoholics',
+        country: 'Nederland',
+        region: 'Gelderland',
+        distance: 10,
+        online: true,
+        name: 'Warsaw Friday',
+        conferenceUrl: 'https://alcoholics-anonymous.eu/meetings/?tsml-day=5&tsml-query=test'
+    }
+]
 
 document.body.onload = async () => {
-    page.initialize();
+    let [results, map] = initialize();
 
-    page.setOnViewOnMapClick((meeting) => {
-        page.setMapFocus(meeting);
-        page.setFocusTo(meeting);
+    map.setMeetingClickCallback(meeting => {
+        results.focus(meeting);
     });
 
-    page.setOnFocusClick((meeting) => {
-        page.setFocusTo(meeting);
+    results.setViewOnMapCallback(meeting => {
+        map.focus(meeting);
     })
 
-    page.setMeetings([
-        {
-            id: 1,
-            position: {
-                longitude: 10,
-                latitude: 15,
-            },
-            org: 'AnonymousAlcoholics',
-            country: 'Nederland',
-            region: 'Gelderland',
-            distance: 10,
-            online: true,
-            name: 'Warsaw Friday',
-            conferenceUrl: 'https://alcoholics-anonymous.eu/meetings/?tsml-day=5&tsml-query=test',
-        },
-        {
-            id: 2,
-            position: {
-                longitude: 50,
-                latitude: 50,
-            },
-            org: 'AnonymousAlcoholics',
-            country: 'Nederland',
-            region: 'Gelderland',
-            distance: 10,
-            online: true,
-            name: 'Warsaw Friday',
-            conferenceUrl: 'https://alcoholics-anonymous.eu/meetings/?tsml-day=5&tsml-query=test'
-        },
-        {
-            id: 3,
-            position: null,
-            org: 'AnonymousAlcoholics',
-            country: 'Nederland',
-            region: 'Gelderland',
-            distance: 10,
-            online: true,
-            name: 'Warsaw Friday',
-            conferenceUrl: 'https://alcoholics-anonymous.eu/meetings/?tsml-day=5&tsml-query=test'
-        }
-    ]);
+    results.setLoading(false);
+    results.addMeetings(meetings);
+
+    map.addMeetings(meetings);
 };
