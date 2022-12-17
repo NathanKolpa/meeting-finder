@@ -83,6 +83,7 @@ pub enum MeetingTime {
 pub enum Organization {
     AnonymousAlcoholics,
     DebtorsAnonymous,
+    CrystalMethAnonymous,
 }
 
 impl ToString for Organization {
@@ -90,6 +91,7 @@ impl ToString for Organization {
         match self {
             Organization::AnonymousAlcoholics => String::from("AnonymousAlcoholics"),
             Organization::DebtorsAnonymous => String::from("DebtorsAnonymous"),
+            Organization::CrystalMethAnonymous => String::from("CrystalMethAnonymous"),
         }
     }
 }
@@ -106,6 +108,7 @@ impl FromStr for Organization {
         match s {
             "AnonymousAlcoholics" => Ok(Self::AnonymousAlcoholics),
             "DebtorsAnonymous" => Ok(Self::DebtorsAnonymous),
+            "CrystalMethAnonymous" => Ok(Self::CrystalMethAnonymous),
             _ => Err(OrganizationParseError::UnknownOrg),
         }
     }

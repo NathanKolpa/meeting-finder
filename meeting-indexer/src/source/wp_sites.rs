@@ -111,6 +111,7 @@ pub async fn fetch_meetings(output: Sender<FetchMeetingResult>) {
     join!(
         fetch_and_send(Organization::AnonymousAlcoholics, "https://alcoholics-anonymous.eu/meetings/?tsml-day=6&tsml-view=map", output.clone()),
         fetch_and_send(Organization::DebtorsAnonymous, "https://debtorsanonymous.org/meetings/?tsml-day=any", output.clone()),
+        fetch_and_send(Organization::CrystalMethAnonymous, "https://www.crystalmeth.org/meetings/?tsml-day=6", output.clone()),
     );
 }
 
