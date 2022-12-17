@@ -1,16 +1,74 @@
+use std::collections::HashMap;
 use std::string::ParseError;
 
 use chrono::{DateTime, NaiveTime, ParseResult, Utc};
+use clap::builder::Str;
+use select::document::Document;
+use select::predicate::Attr;
 use serde::{Deserialize, Serialize};
-
 use tokio::sync::mpsc::Sender;
 
 use crate::meeting::*;
+use crate::source::MeetingFetchError;
 
 use super::FetchMeetingResult;
 
+struct Metadata {
+    nonce: String,
+    meeting_type_map: HashMap<String, String>,
+    endpoint: String
+}
+
+async fn fetch_metadata() -> Result<Metadata, MeetingFetchError> {
+    let page_text = reqwest::get("https://alcoholics-anonymous.eu/meetings/?tsml-day=6&tsml-view=map")
+        .await?
+        .text()
+        .await?;
+
+    let document = Document::from(page_text.as_str());
+
+    let script_element = document.find(Attr("id", "tsml_public-js-extra"))
+        .next()
+        .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("Cannot find tsml metadata script")))?;
+
+    let mut text = script_element.text();
+    let json_text = &text["var tsml = ".len()..text.len() - 2];
+
+    let json: serde_json::Value = serde_json::from_str(json_text)?;
+
+    let map = json.get("types")
+        .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("Cannot find 'types' in json")))?
+        .as_object()
+        .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("'types' is not a json object")))?;
+
+    let mut meeting_type_map = HashMap::new();
+
+    for (key, value) in map.iter() {
+        let value = value.as_str()
+            .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("'types.*' is not a string")))?;
+
+        meeting_type_map.insert(key.clone(), value.to_string());
+    }
+
+    Ok(Metadata {
+        nonce: json.get("nonce")
+            .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("Cannot find 'nonce' in json")))?
+            .as_str()
+            .unwrap()
+            .to_string(),
+
+        endpoint: json.get("ajaxurl")
+            .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("Cannot find 'ajaxurl' in json")))?
+            .as_str()
+            .unwrap()
+            .to_string(),
+
+        meeting_type_map
+    })
+}
+
 async fn fetch_all_meetings() -> FetchMeetingResult {
-    let client = reqwest::Client::new();
+    let metadata = fetch_metadata().await?;
 
     let params = [
         ("action", "meetings"),
@@ -18,11 +76,12 @@ async fn fetch_all_meetings() -> FetchMeetingResult {
         ("distance", "2"),
         ("view", "list"),
         ("distance_units", "km"),
-        ("nonce", "969e2c8494"),
+        ("nonce", &metadata.nonce),
     ];
 
+    let client = reqwest::Client::new();
     let res: Vec<AAMeeting> = client
-        .post("https://alcoholics-anonymous.eu/wp-admin/admin-ajax.php")
+        .post(&metadata.endpoint)
         .form(&params)
         .send()
         .await?
