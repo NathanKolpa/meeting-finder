@@ -34,8 +34,46 @@ pub struct Contact {
 }
 
 #[derive(Debug, Clone)]
+pub enum WeekDay {
+    Monday,
+    Tuesday,
+    Wednesday,
+    Thursday,
+    Friday,
+    Saturday,
+    Sunday
+}
+
+impl WeekDay {
+    pub fn from_day_index(day: u8) -> Self {
+        match day {
+            0 => Self::Monday,
+            1 => Self::Tuesday,
+            2 => Self::Wednesday,
+            3 => Self::Thursday,
+            4 => Self::Friday,
+            5 => Self::Saturday,
+            6 => Self::Sunday,
+            _ => panic!("Day must be between 0 and 6")
+        }
+    }
+
+    pub fn to_day_index(&self) -> u8 {
+        match self {
+            WeekDay::Monday => 0,
+            WeekDay::Tuesday => 1,
+            WeekDay::Wednesday => 2,
+            WeekDay::Thursday => 3,
+            WeekDay::Friday => 4,
+            WeekDay::Saturday => 5,
+            WeekDay::Sunday => 6
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub enum MeetingTime {
-    Recurring { day: u8, time: NaiveTime },
+    Recurring { day: WeekDay, time: NaiveTime },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -67,15 +105,24 @@ impl FromStr for Organization {
 }
 
 #[derive(Debug, Clone)]
+pub struct OnlineOptions {
+    pub online_url: Option<String>,
+    pub notes: Option<String>,
+    pub is_online: bool,
+}
+
+#[derive(Debug, Clone)]
 pub struct Meeting {
     pub name: String,
+    pub org: Organization,
+    pub notes: Option<String>,
+    pub source: String,
+
     pub contact: Contact,
     pub location: Location,
-    pub confrence_url: Option<String>,
+
+    pub online_options: OnlineOptions,
 
     pub time: MeetingTime,
     pub duration: Duration,
-
-    pub notes: Option<String>,
-    pub org: Organization,
 }

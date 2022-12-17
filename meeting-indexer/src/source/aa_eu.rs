@@ -189,10 +189,25 @@ impl TryInto<Meeting> for AAMeeting {
     fn try_into(self) -> Result<Meeting, Self::Error> {
         let time = self.time.ok_or(ConvertError::MissingField)?;
         let end_time = self.end_time.ok_or(ConvertError::MissingField)?;
-        let day = self.day.ok_or(ConvertError::MissingField)?;
+        let mut day = self.day.ok_or(ConvertError::MissingField)?;
+
+        // We specify that monday = 0, sunday = 6.
+        //
+        if day == 0 {
+            day = 6;
+        }
+        else {
+            day -= 1;
+        }
 
         Ok(Meeting {
+            online_options: OnlineOptions {
+                is_online: self.region.as_ref().map(|region| region == "--Online--").unwrap_or(false),
+                online_url: self.conference_url,
+                notes: self.conference_url_notes
+            },
             name: self.name,
+            source: self.url,
             org: Organization::AnonymousAlcoholics,
             contact: Contact {
                 email: self.email,
@@ -209,9 +224,8 @@ impl TryInto<Meeting> for AAMeeting {
                 region: self.sub_region,
                 address: Some(self.formatted_address),
             },
-            confrence_url: self.conference_url,
             time: MeetingTime::Recurring {
-                day,
+                day: WeekDay::from_day_index(day),
                 time: NaiveTime::parse_from_str(&time, "%H:%M").unwrap(),
             },
             notes: self.notes,

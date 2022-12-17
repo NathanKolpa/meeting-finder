@@ -33,9 +33,12 @@ impl<'index> MeetingImport<'index> {
             }
 
             self.tx.execute(
-                "INSERT INTO meetings(latitude, longitude, location_name, location_notes, country, region, address, name, notes, org, confrence_url, phone, email, duration, day, time)
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO meetings(online, online_notes, source, latitude, longitude, location_name, location_notes, country, region, address, name, notes, org, online_url, phone, email, duration, day, time)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 params![
+                    meeting.online_options.is_online,
+                    meeting.online_options.notes,
+                    meeting.source,
                     meeting.location.position.as_ref().map(|p| p.latitude),
                     meeting.location.position.as_ref().map(|p| p.longitude),
                     meeting.location.location_name,
@@ -46,15 +49,20 @@ impl<'index> MeetingImport<'index> {
                     meeting.name,
                     meeting.notes,
                     meeting.org.to_string(),
-                    meeting.confrence_url,
+                    meeting.online_options.online_url,
                     meeting.contact.phone,
                     meeting.contact.email,
                     meeting.duration.to_string(),
-                    meeting_day,
+                    meeting_day.map(|day| day.to_day_index()),
                     meeting_time
                 ])?;
         }
 
+        Ok(())
+    }
+
+    pub async fn remove_old_meetings(&self) -> Result<(), IndexError> {
+        self.tx.execute("DELETE FROM meetings", params![])?;
         Ok(())
     }
 
@@ -83,19 +91,23 @@ impl MeetingIndex {
     fn migrate(conn: &mut Connection) -> Result<(), IndexError> {
         conn.execute(
             "CREATE TABLE IF NOT EXISTS meetings (
-            latitude REAL NULL,
-            longitude REAL NULL,
-            location_name TEXT NULL,
-            location_notes TEXT NULL,
+            name TEXT NOT NULL,
+            org TEXT NOT NULL,
+            notes TEXT NULL,
+            source TEXT NOT NULL,
+
             country TEXT NULL,
             region TEXT NULL,
+            location_name TEXT NULL,
+            location_notes TEXT NULL,
+            latitude REAL NULL,
+            longitude REAL NULL,
             address TEXT NULL,
 
-            name TEXT NOT NULL,
-            notes TEXT NULL,
-            org TEXT NOT NULL,
-            confrence_url TEXT NULL,
-            
+            online INTEGER NOT NULL,
+            online_url TEXT NULL,
+            online_notes TEXT NULL,
+
             phone TEXT NULL,
             email TEXT NULL,
 

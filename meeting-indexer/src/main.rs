@@ -1,5 +1,7 @@
 #![feature(async_closure)]
 
+extern crate core;
+
 use std::error::Error;
 
 use clap::{Parser, Subcommand};
@@ -65,7 +67,7 @@ async fn add_meetings_to_index(
                 if let Err(e) = result {
                     println!("Failed to add meetings to the staging: {}", e);
                 } else {
-                    println!("Successfully added {meeting_count} meetings to the staging");
+                    println!("Added {meeting_count} meetings to the staging");
                 }
             }
         }
@@ -74,6 +76,7 @@ async fn add_meetings_to_index(
 
 async fn sync_index(index: &mut index::MeetingIndex) -> Result<(), index::IndexError> {
     let mut import = index.start_import().await?;
+    import.remove_old_meetings().await?;
 
     let (tx, rx) = channel(1024);
     join!(
@@ -82,5 +85,7 @@ async fn sync_index(index: &mut index::MeetingIndex) -> Result<(), index::IndexE
     );
 
     import.commit().await?;
+    println!("Committed the staging to the database");
+
     Ok(())
 }
