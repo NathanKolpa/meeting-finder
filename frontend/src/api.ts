@@ -73,6 +73,7 @@ interface ApiOnlineOptions {
 
 enum ApiOrg {
     AnonymousAlcoholics = "AnonymousAlcoholics",
+    DebtorsAnonymous= "DebtorsAnonymous",
 }
 
 interface ApiTime {

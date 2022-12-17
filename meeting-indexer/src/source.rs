@@ -1,4 +1,4 @@
-mod aa_eu;
+mod wp_sites;
 
 use thiserror::Error;
 use tokio::{join, sync::mpsc::Sender};
@@ -20,5 +20,5 @@ pub enum MeetingFetchError {
 pub type FetchMeetingResult = Result<Vec<Meeting>, MeetingFetchError>;
 
 pub async fn fetch_all_meetings(output: Sender<FetchMeetingResult>) {
-    join!(aa_eu::fetch_meetings(output.clone()));
+    join!(wp_sites::fetch_meetings(output.clone()));
 }

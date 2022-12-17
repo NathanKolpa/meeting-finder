@@ -7,6 +7,8 @@ use clap::builder::Str;
 use select::document::Document;
 use select::predicate::Attr;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use tokio::join;
 use tokio::sync::mpsc::Sender;
 
 use crate::meeting::*;
@@ -20,8 +22,8 @@ struct Metadata {
     endpoint: String,
 }
 
-async fn fetch_metadata() -> Result<Metadata, MeetingFetchError> {
-    let page_text = reqwest::get("https://alcoholics-anonymous.eu/meetings/?tsml-day=6&tsml-view=map")
+async fn fetch_metadata(meeting_url: &str) -> Result<Metadata, MeetingFetchError> {
+    let page_text = reqwest::get(meeting_url)
         .await?
         .text()
         .await?;
@@ -33,9 +35,12 @@ async fn fetch_metadata() -> Result<Metadata, MeetingFetchError> {
         .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("Cannot find tsml metadata script")))?;
 
     let mut text = script_element.text();
-    let json_text = &text["var tsml = ".len()..text.len() - 2];
 
-    let json: serde_json::Value = serde_json::from_str(json_text)?;
+    let json_start_index = text.find('{').ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("cannot find the start of the json text")))?;
+    let json_end_index = text.rfind('}').ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("cannot find the end of the json text")))?;
+    let json_text = &text[json_start_index..json_end_index + 1];
+
+    let json: Value = serde_json::from_str(json_text)?;
 
     let map = json.get("types")
         .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("Cannot find 'types' in json")))?
@@ -68,8 +73,8 @@ async fn fetch_metadata() -> Result<Metadata, MeetingFetchError> {
     })
 }
 
-async fn fetch_all_meetings() -> FetchMeetingResult {
-    let metadata = fetch_metadata().await?;
+async fn fetch_all_meetings(meetings_url: &str, org: Organization) -> FetchMeetingResult {
+    let metadata = fetch_metadata(meetings_url).await?;
 
     let params = [
         ("action", "meetings"),
@@ -89,12 +94,24 @@ async fn fetch_all_meetings() -> FetchMeetingResult {
         .json()
         .await?;
 
-    Ok(res.into_iter().filter_map(|m| m.try_into().ok()).collect())
+    Ok(res.into_iter().filter_map(|m| {
+        m.try_into().ok().map(|mut m: Meeting| {
+            m.org = org.clone();
+            m
+        })
+    }).collect())
+}
+
+async fn fetch_and_send(org: Organization, meetings_url: &str, output: Sender<FetchMeetingResult>) {
+    let result = fetch_all_meetings(meetings_url, org).await;
+    output.send(result).await.unwrap();
 }
 
 pub async fn fetch_meetings(output: Sender<FetchMeetingResult>) {
-    let result = fetch_all_meetings().await;
-    output.send(result).await.unwrap();
+    join!(
+        fetch_and_send(Organization::AnonymousAlcoholics, "https://alcoholics-anonymous.eu/meetings/?tsml-day=6&tsml-view=map", output.clone()),
+        fetch_and_send(Organization::DebtorsAnonymous, "https://debtorsanonymous.org/meetings/?tsml-day=any", output.clone()),
+    );
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -102,37 +119,29 @@ pub async fn fetch_meetings(output: Sender<FetchMeetingResult>) {
 struct AAMeeting {
     pub id: i64,
     pub name: String,
-    pub slug: String,
+    pub slug: Option<String>,
     pub notes: Option<String>,
-    pub updated: String,
-    #[serde(rename = "location_id")]
-    pub location_id: i64,
     pub url: String,
-    pub day: Option<u8>,
-    #[serde(rename = "edit_url")]
-    pub edit_url: String,
+    pub day: Option<Value>,
     #[serde(default)]
     pub types: Vec<String>,
     pub location: Option<String>,
     #[serde(rename = "location_url")]
-    pub location_url: String,
+    pub location_url: Option<String>,
     #[serde(rename = "formatted_address")]
-    pub formatted_address: String,
-    pub approximate: String,
-    pub latitude: f64,
-    pub longitude: f64,
-    #[serde(rename = "region_id")]
-    pub region_id: Option<i64>,
+    pub formatted_address: Option<String>,
+    pub approximate: Option<String>,
+    pub latitude: Value,
+    pub longitude: Value,
     pub region: Option<String>,
     #[serde(rename = "sub_region")]
     pub sub_region: Option<String>,
-    pub regions: Vec<Option<String>>,
     pub email: Option<String>,
     pub phone: Option<String>,
     #[serde(rename = "last_contact")]
     pub last_contact: Option<String>,
     #[serde(rename = "attendance_option")]
-    pub attendance_option: String,
+    pub attendance_option: Option<String>,
     pub time: Option<String>,
     #[serde(rename = "end_time")]
     pub end_time: Option<String>,
@@ -182,6 +191,7 @@ struct AAMeeting {
 
 enum ConvertError {
     MissingField,
+    ParseError,
 }
 
 impl TryInto<Meeting> for AAMeeting {
@@ -190,10 +200,20 @@ impl TryInto<Meeting> for AAMeeting {
     fn try_into(self) -> Result<Meeting, Self::Error> {
         let time = self.time.ok_or(ConvertError::MissingField)?;
         let end_time = self.end_time.ok_or(ConvertError::MissingField)?;
-        let mut day = self.day.ok_or(ConvertError::MissingField)?;
 
-        // We specify that monday = 0, sunday = 6.
-        //
+        let day_value = self.day.ok_or(ConvertError::MissingField)?;
+        let mut day: u8 = day_value.as_u64().or_else(|| day_value.as_str().map(|s| s.parse().unwrap()))
+            .ok_or(ConvertError::ParseError)? as u8;
+
+        let convert_f64 = |val: Value| -> Result<f64, ConvertError> {
+            Ok(val.as_f64().or_else(|| val.as_str().map(|s| s.parse().unwrap()))
+                .ok_or(ConvertError::ParseError)?)
+        };
+
+        let latitude = convert_f64(self.latitude)?;
+        let longitude = convert_f64(self.longitude)?;
+
+        // We specify that monday = 0 and sunday = 6.
         if day == 0 {
             day = 6;
         } else {
@@ -217,18 +237,18 @@ impl TryInto<Meeting> for AAMeeting {
             },
             location: Location {
                 position: Some(Position {
-                    latitude: self.latitude,
-                    longitude: self.longitude,
+                    latitude,
+                    longitude,
                 }),
                 location_name: self.location,
                 location_notes: self.location_notes,
                 country: self.region,
                 region: self.sub_region,
-                address: Some(self.formatted_address),
+                address: self.formatted_address,
             },
             time: MeetingTime::Recurring {
                 day: WeekDay::from_day_index(day),
-                time: NaiveTime::parse_from_str(&time, "%H:%M").unwrap(),
+                time: NaiveTime::parse_from_str(&time, "%H:%M").map_err(|_| ConvertError::ParseError)?,
             },
             notes: self.notes,
             duration: (NaiveTime::parse_from_str(&end_time, "%H:%M").unwrap()

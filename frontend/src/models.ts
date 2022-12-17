@@ -1,4 +1,4 @@
-export type Organization = 'AnonymousAlcoholics';
+export type Organization = 'AnonymousAlcoholics' | 'DebtorsAnonymous';
 
 export interface MeetingPosition {
     longitude: number;

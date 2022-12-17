@@ -82,12 +82,14 @@ pub enum MeetingTime {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub enum Organization {
     AnonymousAlcoholics,
+    DebtorsAnonymous,
 }
 
 impl ToString for Organization {
     fn to_string(&self) -> String {
         match self {
             Organization::AnonymousAlcoholics => String::from("AnonymousAlcoholics"),
+            Organization::DebtorsAnonymous => String::from("DebtorsAnonymous"),
         }
     }
 }
@@ -103,6 +105,7 @@ impl FromStr for Organization {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "AnonymousAlcoholics" => Ok(Self::AnonymousAlcoholics),
+            "DebtorsAnonymous" => Ok(Self::DebtorsAnonymous),
             _ => Err(OrganizationParseError::UnknownOrg),
         }
     }
