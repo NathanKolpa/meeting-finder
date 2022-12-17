@@ -1,18 +1,16 @@
 .meeting-finder {
   width: 100%;
   display: flex;
-  column-count: 12;
-  flex-wrap: wrap;
-  height: 90vh;
-  padding: $padding;
-
   flex-direction: column-reverse;
+  height: 90vh;
+
 
   .search {
     flex: 12;
     display: flex;
     flex-direction: column;
     height: 100%;
+    margin: $padding;
 
     .results {
       flex: 1 1 auto;
@@ -21,6 +19,8 @@
 
   #map {
     flex: 12;
+    margin: $padding;
+    height: 100%;
   }
 
   @include mobilefirst($extra-large-break) {
@@ -46,23 +46,43 @@
   padding: $padding;
 }
 
+.results-container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
 .results {
   list-style: none;
-  overflow-y: auto;
-  overflow-x: visible;
   padding: $padding;
+  overflow-y: auto;
+  height: 100%;
+  width: 100%;
+  position: absolute;
   margin: 0;
 
   .result {
-
     height: 82px;
     padding: $padding;
     border-radius: $border-radius;
     background-color: $white;
     box-shadow: $shadow;
     margin-bottom: $padding;
+    display: flex;
 
     transition: background-color 300ms linear;
+
+    .container {
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+
+      .inner {
+        position: absolute;
+        width: 100%;
+      }
+    }
 
     &.active {
       background-color: $silver;
@@ -71,11 +91,22 @@
 
     .title {
       font-size: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .name {
+      overflow: hidden;
+      min-width: 0;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .time {
-      float: right;
       font-size: 14px;
+      text-align: end;
+      white-space: nowrap;
     }
 
     .focus {
@@ -96,6 +127,8 @@
     .actions, .subtext {
       list-style: none;
       padding: 0;
+      overflow: hidden;
+      white-space: nowrap;
 
       li {
         display: inline-block;

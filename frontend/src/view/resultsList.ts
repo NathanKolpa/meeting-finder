@@ -55,23 +55,27 @@ export class ResultsList {
         li.innerHTML =
             `
             <img class="logo" alt="Organization logo">
-            <p class="title">
-                <span class="name">[Title]</span>
-                <span class="time">[time]</span>
-            </p>
-            
-            <ul class="subtext">
-                <li class="country">[Country]</li>
-                <li class="region">[Region]</li>
-                <li class="distance">[Distance] <span>km</span></li>
-                <li class="online">[online]</li>
-            </ul>
-            
-            <ul class="actions">
-                <li class="link info">Info</li>
-                <li class="separator">|</li>
-                <li class="link focus">View on map</li>
-            </ul>
+            <div class="container">
+                <div class="inner">
+                    <div class="title">
+                        <span class="name">[Title]</span>
+                        <span class="time">[time]</span>
+                    </div>
+                    
+                    <ul class="subtext">
+                        <li class="country">[Country]</li>
+                        <li class="region">[Region]</li>
+                        <li class="distance">[Distance] <span>km</span></li>
+                        <li class="online">[online]</li>
+                    </ul>
+                    
+                    <ul class="actions">
+                        <li class="link info">Info</li>
+                        <li class="separator">|</li>
+                        <li class="link focus">View on map</li>
+                    </ul>
+                </div>
+            </div>
             `;
 
         let logo = li.getElementsByClassName('logo')[0]! as HTMLImageElement;
