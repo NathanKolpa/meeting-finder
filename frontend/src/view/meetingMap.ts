@@ -1,4 +1,4 @@
-import L, {Icon, icon, LatLngExpression, Map, map, tileLayer} from "leaflet";
+import L, {circleMarker, Icon, icon, LatLngExpression, Map, map, tileLayer} from "leaflet";
 import {Meeting, Organization} from "../models";
 import {getLogoImgUrlByOrg} from "./logo";
 import {MeetingCallback} from "./callback";
@@ -43,10 +43,9 @@ export class MeetingMap {
         }
 
         let pos: LatLngExpression = [meeting.position.latitude, meeting.position.longitude];
-        let icon = this.getMapIconByOrg(meeting.org);
 
         let marker = L.marker(pos, {
-            icon,
+            icon: this.getMapIconByOrg(meeting.org),
             title: meeting.name,
             riseOnHover: true,
         });
