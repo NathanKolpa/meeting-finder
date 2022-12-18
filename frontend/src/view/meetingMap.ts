@@ -27,7 +27,7 @@ export class MeetingMap {
             minZoom: 2,
             center: {lng: 0, lat: 0},
             layers: [mapLayer],
-            preferCanvas: true,
+            markerZoomAnimation: false,
         });
     }
 
@@ -59,9 +59,8 @@ export class MeetingMap {
         this.actions[meeting.id] = {
             remove: () => marker.remove(),
             focus: () => {
-                this.map.flyTo(pos, 15, {
-                    duration: 1,
-                    easeLinearity: 1,
+                this.map.flyTo(pos, 13, {
+                    animate: false
                 });
 
                 marker.openPopup()
