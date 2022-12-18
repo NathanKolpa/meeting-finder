@@ -27,7 +27,6 @@ export class MeetingMap {
             minZoom: 2,
             center: {lng: 0, lat: 0},
             layers: [mapLayer],
-            markerZoomAnimation: false,
         });
     }
 
@@ -91,7 +90,7 @@ export class MeetingMap {
 
         const newIcon = icon({
             iconUrl: getLogoImgUrlByOrg(org),
-            iconSize: [30, 30],
+            iconSize: [40, 40],
         });
 
         this.iconCache[org] = newIcon;

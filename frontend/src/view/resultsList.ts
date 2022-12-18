@@ -3,7 +3,6 @@ import {getLogoImgUrlByOrg} from "./logo";
 import {MeetingCallback} from "./callback";
 
 interface ResultListItemActions {
-    focus: () => void,
 }
 
 export class ResultsList {
@@ -12,6 +11,7 @@ export class ResultsList {
     private actions: { [id: number]: ResultListItemActions } = {};
     private isLoading = true;
     private viewOnMapCallback: MeetingCallback = null;
+    private showInfoCallback: MeetingCallback = null;
 
     public constructor(resultsId: string, loadingId: string) {
         this.resultsElement = this.findElementOrThrow(resultsId);
@@ -25,10 +25,6 @@ export class ResultsList {
             throw new Error(`Cannot find element #${id}`);
         }
         return element;
-    }
-
-    public focus(meeting: Meeting) {
-        this.actions[meeting.id]?.focus();
     }
 
     private clear() {
@@ -87,6 +83,7 @@ export class ResultsList {
         let online = li.getElementsByClassName('online')[0]!;
 
         let focus = li.getElementsByClassName('focus')[0]! as HTMLElement;
+        let info = li.getElementsByClassName('info')[0]! as HTMLElement;
 
         setTextOrRemoveIfNull(meeting.name, name);
         setTextOrRemoveIfNull(meeting.country, country);
@@ -106,33 +103,16 @@ export class ResultsList {
             };
         }
 
+        info.onclick = () => {
+            if (this.showInfoCallback) {
+                this.showInfoCallback(meeting);
+            }
+        }
+
 
         logo.src = getLogoImgUrlByOrg(meeting.org);
 
-        this.actions[meeting.id] = {
-            focus: () => {
-                li.scrollIntoView({
-                    behavior: 'smooth'
-                });
-
-                li.classList.add('active');
-
-                let scrollTimeout: number | null = null;
-                let debounce = () => {
-                    if (scrollTimeout) {
-                        clearTimeout(scrollTimeout);
-                    }
-
-
-                    scrollTimeout = setTimeout(() => {
-                        setTimeout(() => li.classList.remove('active'), 500);
-                    }, 100);
-                };
-
-                this.resultsElement.addEventListener('scroll', debounce);
-                debounce();
-            }
-        };
+        this.actions[meeting.id] = {};
 
         this.resultsElement.appendChild(li);
     }
@@ -155,5 +135,9 @@ export class ResultsList {
 
     public setViewOnMapCallback(callback: MeetingCallback) {
         this.viewOnMapCallback = callback;
+    }
+
+    public setShowInfoCallback(callback: MeetingCallback) {
+        this.showInfoCallback = callback;
     }
 }

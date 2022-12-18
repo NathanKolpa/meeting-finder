@@ -5,15 +5,12 @@ import {fetchMeetings} from "./api";
 
 
 document.body.onload = async () => {
-    let [results, map] = initialize();
+    let [results, map, popup] = initialize();
 
-    map.setMeetingClickCallback(meeting => {
-        results.focus(meeting);
-    });
 
-    results.setViewOnMapCallback(meeting => {
-        map.focus(meeting);
-    })
+    map.setMeetingClickCallback(m => popup.showMeeting(m));
+    results.setShowInfoCallback(m => popup.showMeeting(m));
+    results.setViewOnMapCallback(m => map.focus(m));
 
     let meetings = await fetchMeetings();
 
