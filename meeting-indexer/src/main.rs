@@ -94,8 +94,15 @@ async fn sync_index(index: &mut index::MeetingIndex) -> Result<(), index::IndexE
         add_meetings_to_index(rx, &mut import)
     );
 
-    import.commit().await?;
-    println!("Committed the staging to the database");
+    let meeting_count = import.meetings_added();
+
+    if meeting_count > 0 {
+        import.commit().await?;
+        println!("Committed the staging to the database with {meeting_count} meetings total");
+    }
+    else {
+        eprintln!("Refusing to commit the staging to the database because it contains 0 meetings");
+    }
 
     Ok(())
 }

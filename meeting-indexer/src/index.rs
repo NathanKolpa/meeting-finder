@@ -3,6 +3,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 use chrono::{NaiveTime};
 
@@ -20,10 +21,13 @@ pub enum IndexError {
 
 pub struct MeetingImport<'index> {
     tx: Transaction<'index>,
+    total_meetings: AtomicUsize
 }
 
 impl<'index> MeetingImport<'index> {
     pub async fn add_meetings(&self, meetings: Vec<Meeting>) -> Result<(), IndexError> {
+        let meeting_count = meetings.len();
+
         for meeting in meetings {
             let mut meeting_day = None;
             let mut meeting_time = None;
@@ -61,6 +65,8 @@ impl<'index> MeetingImport<'index> {
                 ])?;
         }
 
+        self.total_meetings.fetch_add(meeting_count, Ordering::Relaxed);
+
         Ok(())
     }
 
@@ -72,6 +78,10 @@ impl<'index> MeetingImport<'index> {
     pub async fn commit(self) -> Result<(), IndexError> {
         self.tx.commit()?;
         Ok(())
+    }
+
+    pub fn meetings_added(&self) -> usize {
+        self.total_meetings.load(Ordering::Relaxed)
     }
 }
 
@@ -187,6 +197,7 @@ impl MeetingIndex {
     pub async fn start_import(&mut self) -> Result<MeetingImport<'_>, IndexError> {
         Ok(MeetingImport {
             tx: self.conn.transaction()?,
+            total_meetings: Default::default()
         })
     }
 }
