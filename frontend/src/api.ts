@@ -22,7 +22,7 @@ export async function fetchMeetings(): Promise<Meeting[]> {
         distance: 0,
         source: apiMeeting.source,
         time: apiMeeting.time.recurring.time,
-        durationInSecs: apiMeeting.duration.secs,
+        durationInSecs: apiMeeting.duration?.secs,
         locationName: apiMeeting.location.location_name,
         onlineNotes: apiMeeting.online_options.notes,
         locationNotes: apiMeeting.location.location_notes
@@ -75,6 +75,7 @@ enum ApiOrg {
     AnonymousAlcoholics = "AnonymousAlcoholics",
     DebtorsAnonymous= "DebtorsAnonymous",
     CrystalMethAnonymous = "CrystalMethAnonymous",
+    CodependentsAnonymous= "CodependentsAnonymous",
 }
 
 interface ApiTime {

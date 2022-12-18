@@ -112,6 +112,9 @@ pub async fn fetch_meetings(output: Sender<FetchMeetingResult>) {
         fetch_and_send(Organization::AnonymousAlcoholics, "https://alcoholics-anonymous.eu/meetings/?tsml-day=6&tsml-view=map", output.clone()),
         fetch_and_send(Organization::DebtorsAnonymous, "https://debtorsanonymous.org/meetings/?tsml-day=any", output.clone()),
         fetch_and_send(Organization::CrystalMethAnonymous, "https://www.crystalmeth.org/meetings/?tsml-day=6", output.clone()),
+        fetch_and_send(Organization::CodependentsAnonymous, "https://www.codependents-anonymous.nl/v2/meetings/?tsml-day=any&tsml-attendance_option=active", output.clone()),
+        fetch_and_send(Organization::CodependentsAnonymous, "https://codacanada.ca/?tsml-day=any&post_type=tsml_meeting", output.clone()),
+        fetch_and_send(Organization::CodependentsAnonymous, "https://codauk.org/meetings/?tsml-day=any", output.clone()),
     );
 }
 
@@ -200,7 +203,7 @@ impl TryInto<Meeting> for AAMeeting {
 
     fn try_into(self) -> Result<Meeting, Self::Error> {
         let time = self.time.ok_or(ConvertError::MissingField)?;
-        let end_time = self.end_time.ok_or(ConvertError::MissingField)?;
+        let end_time = self.end_time;
 
         let day_value = self.day.ok_or(ConvertError::MissingField)?;
         let mut day: u8 = day_value.as_u64().or_else(|| day_value.as_str().map(|s| s.parse().unwrap()))
@@ -252,8 +255,8 @@ impl TryInto<Meeting> for AAMeeting {
                 time: NaiveTime::parse_from_str(&time, "%H:%M").map_err(|_| ConvertError::ParseError)?,
             },
             notes: self.notes,
-            duration: (NaiveTime::parse_from_str(&end_time, "%H:%M").unwrap()
-                - NaiveTime::parse_from_str(&time, "%H:%M").unwrap()).to_std().unwrap_or(Duration::from_secs(1)),
+            duration: end_time.map(|end_time| (NaiveTime::parse_from_str(&end_time, "%H:%M").unwrap()
+                - NaiveTime::parse_from_str(&time, "%H:%M").unwrap()).to_std().unwrap_or(Duration::from_secs(1))),
         })
     }
 }

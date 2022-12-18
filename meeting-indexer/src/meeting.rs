@@ -84,6 +84,7 @@ pub enum Organization {
     AnonymousAlcoholics,
     DebtorsAnonymous,
     CrystalMethAnonymous,
+    CodependentsAnonymous,
 }
 
 impl ToString for Organization {
@@ -92,6 +93,7 @@ impl ToString for Organization {
             Organization::AnonymousAlcoholics => String::from("AnonymousAlcoholics"),
             Organization::DebtorsAnonymous => String::from("DebtorsAnonymous"),
             Organization::CrystalMethAnonymous => String::from("CrystalMethAnonymous"),
+            Organization::CodependentsAnonymous => String::from("CodependentsAnonymous"),
         }
     }
 }
@@ -109,6 +111,7 @@ impl FromStr for Organization {
             "AnonymousAlcoholics" => Ok(Self::AnonymousAlcoholics),
             "DebtorsAnonymous" => Ok(Self::DebtorsAnonymous),
             "CrystalMethAnonymous" => Ok(Self::CrystalMethAnonymous),
+            "CodependentsAnonymous" => Ok(Self::CodependentsAnonymous),
             _ => Err(OrganizationParseError::UnknownOrg),
         }
     }
@@ -135,5 +138,5 @@ pub struct Meeting {
 
     pub time: MeetingTime,
 
-    pub duration: Duration,
+    pub duration: Option<Duration>,
 }

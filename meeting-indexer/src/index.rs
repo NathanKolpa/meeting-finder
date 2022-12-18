@@ -55,7 +55,7 @@ impl<'index> MeetingImport<'index> {
                     meeting.online_options.online_url,
                     meeting.contact.phone,
                     meeting.contact.email,
-                    meeting.duration.as_secs(),
+                    meeting.duration.map(|d| d.as_secs()),
                     meeting_day.map(|day| day.to_day_index()),
                     meeting_time
                 ])?;
@@ -125,7 +125,7 @@ impl MeetingIndex {
             phone TEXT NULL,
             email TEXT NULL,
 
-            duration INTEGER NOT NULL,
+            duration INTEGER NULL,
             day INTEGER NULL,
             time TEXT NULL
         )",
@@ -177,7 +177,7 @@ impl MeetingIndex {
                     day: WeekDay::from_day_index(row.get("day")?),
                     time: row.get::<_, String>("time")?.parse().unwrap(),
                 },
-                duration: Duration::from_secs(row.get("duration")?),
+                duration: row.get::<_, Option<u64>>("duration")?.map(|secs| Duration::from_secs(secs)),
             })
         })?;
 
