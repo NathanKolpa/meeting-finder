@@ -26,7 +26,8 @@ export class MeetingMap {
             zoom: 2,
             minZoom: 2,
             center: {lng: 0, lat: 0},
-            layers: [mapLayer]
+            layers: [mapLayer],
+            preferCanvas: true,
         });
     }
 
