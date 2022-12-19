@@ -1,32 +1,63 @@
 import {Meeting} from "./models";
 
+function pad(a: any, b: number) {
+    return ([1e15] + a).slice(-b)
+}
+
 export async function fetchMeetings(): Promise<Meeting[]> {
     const request = await fetch(import.meta.env.VITE_API_URL);
     const response = await request.json() as ApiMeeting[];
 
     let id = 0;
 
-    return response.map(apiMeeting => ({
-        name: apiMeeting.name,
-        id: ++id,
+    return response.map(apiMeeting => {
 
-        notes: apiMeeting.notes,
-        day: apiMeeting.time.recurring.day,
-        country: apiMeeting.location.country,
-        position: apiMeeting.location.position,
-        online: apiMeeting.online_options.is_online,
-        org: apiMeeting.org,
-        address: apiMeeting.location.address,
-        region: apiMeeting.location.address,
-        onlineUrl: apiMeeting.online_options.online_url,
-        distance: 0,
-        source: apiMeeting.source,
-        time: apiMeeting.time.recurring.time,
-        durationInSecs: apiMeeting.duration?.secs,
-        locationName: apiMeeting.location.location_name,
-        onlineNotes: apiMeeting.online_options.notes,
-        locationNotes: apiMeeting.location.location_notes
-    }))
+        let isRecurring = !!apiMeeting.time.recurring;
+        let formattedTime = '';
+
+        if (isRecurring) {
+            let timeStr = apiMeeting.time.recurring.time as string;
+            let [hours, minutes, _seconds] = timeStr.split(':')
+
+            formattedTime = `Every ${apiMeeting.time.recurring.day} at ${hours}:${minutes}`;
+
+            if (apiMeeting.duration) {
+                let seconds = apiMeeting.duration.secs;
+
+                let endHours = Math.floor(seconds / 3600);
+                seconds %= endHours;
+
+                let endMinutes = Math.floor(seconds / 60);
+
+                formattedTime += ` - ${pad(endHours + (+hours), 2)}:${pad(endMinutes + (+minutes), 2)}`;
+            }
+        }
+
+        return {
+            name: apiMeeting.name,
+            id: ++id,
+            notes: apiMeeting.notes,
+            day: apiMeeting.time.recurring.day,
+            country: apiMeeting.location.country,
+            position: apiMeeting.location.position,
+            online: apiMeeting.online_options.is_online,
+            org: apiMeeting.org,
+            address: apiMeeting.location.address,
+            region: apiMeeting.location.address,
+            onlineUrl: apiMeeting.online_options.online_url,
+            distance: 0,
+            source: apiMeeting.source,
+            time: apiMeeting.time.recurring.time,
+            durationInSecs: apiMeeting.duration?.secs,
+            locationName: apiMeeting.location.location_name,
+            onlineNotes: apiMeeting.online_options.notes,
+            locationNotes: apiMeeting.location.location_notes,
+            email: apiMeeting.contact.email,
+            phone: apiMeeting.contact.phone,
+            recurring: isRecurring,
+            formattedTime
+        };
+    })
 }
 
 interface ApiMeeting {
@@ -73,9 +104,9 @@ interface ApiOnlineOptions {
 
 enum ApiOrg {
     AnonymousAlcoholics = "AnonymousAlcoholics",
-    DebtorsAnonymous= "DebtorsAnonymous",
+    DebtorsAnonymous = "DebtorsAnonymous",
     CrystalMethAnonymous = "CrystalMethAnonymous",
-    CodependentsAnonymous= "CodependentsAnonymous",
+    CodependentsAnonymous = "CodependentsAnonymous",
 }
 
 interface ApiTime {

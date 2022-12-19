@@ -155,7 +155,6 @@ export class MeetingMap {
             focus: () => {
                 this.map.flyTo(pos, MAX_ZOOM, {
                     animate: true,
-                    duration: 1
                 });
             },
         };

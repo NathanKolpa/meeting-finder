@@ -10,8 +10,13 @@ export class MeetingDetailsPopup {
     private countryRow: HTMLElement;
     private region: HTMLElement;
     private regionRow: HTMLElement;
+    private emailRow: HTMLElement;
+    private email: HTMLAnchorElement;
+    private phoneRow: HTMLElement;
+    private phone: HTMLAnchorElement;
     private locationInfoTable: HTMLElement;
     private locationNotes: HTMLElement;
+    private time: HTMLElement;
     private source: HTMLAnchorElement;
 
     public constructor(private id: string) {
@@ -27,6 +32,11 @@ export class MeetingDetailsPopup {
         this.locationInfoTable = root.getElementsByClassName('location-info').item(0) as HTMLElement;
         this.source = root.getElementsByClassName('source').item(0) as HTMLAnchorElement;
         this.locationNotes = root.getElementsByClassName('location-notes').item(0) as HTMLElement;
+        this.email = root.getElementsByClassName('email').item(0) as HTMLAnchorElement;
+        this.emailRow = root.getElementsByClassName('emailRow').item(0) as HTMLElement;
+        this.phone = root.getElementsByClassName('phone').item(0) as HTMLAnchorElement;
+        this.phoneRow = root.getElementsByClassName('phoneRow').item(0) as HTMLElement;
+        this.time = root.getElementsByClassName('time').item(0) as HTMLElement;
     }
 
     public showMeeting(meeting: Meeting) {
@@ -66,6 +76,25 @@ export class MeetingDetailsPopup {
             this.locationNotes.hidden = true;
         }
 
+        if (meeting.email) {
+            this.emailRow.hidden = false;
+            this.email.innerText = meeting.email;
+            this.email.href = `mailto:${meeting.email}`
+        }
+        else {
+            this.emailRow.hidden = true;
+        }
+
+        if (meeting.phone) {
+            this.phoneRow.hidden = false;
+            this.phone.innerText = meeting.phone;
+            this.phone.href = `tel:${meeting.phone}`
+        }
+        else {
+            this.phoneRow.hidden = true;
+        }
+
+        this.time.innerText = meeting.formattedTime;
         this.source.href = meeting.source;
         this.source.title = meeting.source;
 

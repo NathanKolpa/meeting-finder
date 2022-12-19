@@ -6,10 +6,3 @@ html, body {
 main {
   padding: $padding;
 }
-
-@include mobilefirst($medium-break) {
-  main {
-    margin: auto;
-    width: 90%;
-  }
-}

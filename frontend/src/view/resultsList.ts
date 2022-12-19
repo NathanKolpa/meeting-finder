@@ -89,7 +89,7 @@ export class ResultsList {
         setTextOrRemoveIfNull(meeting.country, country);
         setTextOrRemoveIfNull(meeting.region, region);
         setTextOrRemoveIfNull(meeting.distance ? meeting.distance + ' km' : null, distance);
-        setTextOrRemoveIfNull('Every Sunday 19:00 - 20:00', time);
+        setTextOrRemoveIfNull(meeting.formattedTime, time);
         setTextOrRemoveIfNull(meeting.online ? 'online' : null, online);
 
         if (!meeting.position) {
