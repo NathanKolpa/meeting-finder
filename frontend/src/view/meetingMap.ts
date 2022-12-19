@@ -1,4 +1,17 @@
-import L, {circleMarker, Icon, icon, LatLngExpression, Map, map, tileLayer} from "leaflet";
+import {
+    circleMarker,
+    Icon,
+    icon,
+    LatLngExpression,
+    Map,
+    map,
+    tileLayer,
+    markerClusterGroup,
+    MarkerClusterGroup,
+    marker,
+    Point, DivIcon
+} from "leaflet";
+import 'leaflet.markercluster';
 import {Meeting, Organization} from "../models";
 import {getLogoImgUrlByOrg} from "./logo";
 import {MeetingCallback} from "./callback";
@@ -10,9 +23,12 @@ interface MapMeetingActions {
 
 export class MeetingMap {
     private readonly map: Map;
+    private readonly cluster: MarkerClusterGroup;
+
     private iconCache: { [key: string]: Icon } = {};
     private actions: { [id: number]: MapMeetingActions } = {};
     private clickCallback: MeetingCallback = null;
+
 
     public constructor(id: string) {
         const mapLayer = tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -21,12 +37,37 @@ export class MeetingMap {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         });
 
+        this.cluster = markerClusterGroup({
+            animate: true,
+            chunkedLoading: true,
+
+
+            iconCreateFunction: (cluster) => {
+                let childCount = cluster.getChildCount();
+
+                let classes = ' marker-cluster-';
+
+                if (childCount < 10) {
+                    classes += 'small';
+                }
+                else if (childCount < 100) {
+                    classes += 'medium';
+                }
+                else {
+                    classes += 'large';
+                }
+
+                return new DivIcon({ html: '<div><span>' + childCount + '</span></div>',
+                    className: 'marker-cluster' + classes, iconSize: new Point(40, 40) });
+            }
+        });
+
         this.map = map(id, {
             zoomControl: true,
             zoom: 2,
             minZoom: 2,
             center: {lng: 0, lat: 0},
-            layers: [mapLayer],
+            layers: [mapLayer, this.cluster],
         });
     }
 
@@ -43,30 +84,29 @@ export class MeetingMap {
 
         let pos: LatLngExpression = [meeting.position.latitude, meeting.position.longitude];
 
-        let marker = L.marker(pos, {
+        let meetingMarker = marker(pos, {
             icon: this.getMapIconByOrg(meeting.org),
             title: meeting.name,
             riseOnHover: true,
         });
 
-        marker.on('click', () => {
+        meetingMarker.on('click', () => {
             if (this.clickCallback) {
                 this.clickCallback(meeting);
             }
         })
 
         this.actions[meeting.id] = {
-            remove: () => marker.remove(),
+            remove: () => meetingMarker.remove(),
             focus: () => {
                 this.map.flyTo(pos, 13, {
-                    animate: false
+                    animate: true,
+                    duration: 1
                 });
-
-                marker.openPopup()
             },
         };
 
-        marker.addTo(this.map);
+        this.cluster.addLayer(meetingMarker);
     }
 
     public focus(meeting: Meeting) {

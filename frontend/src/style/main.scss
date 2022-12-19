@@ -1,6 +1,9 @@
 @import "normalize.css/normalize.css";
 @import 'leaflet/dist/leaflet.css';
 
+@import 'leaflet.markercluster/dist/MarkerCluster.css';
+@import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+
 @import "config";
 @import "mixins";
 
