@@ -1,5 +1,5 @@
 export interface SearchQuery {
-    location: string;
+    location: string | null;
 }
 
 export type SearchCallback = ((query: SearchQuery) => void) | null;
@@ -17,8 +17,10 @@ export class SearchBar {
             e.preventDefault();
             const data = new FormData(this.form);
 
+            let location = data.get('location') as string;
+
             this.submit({
-                location: data.get('location') as string
+                location: location == "" ? null : location
             });
         }
     }

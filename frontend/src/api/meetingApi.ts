@@ -5,8 +5,8 @@ function pad(a: any, b: number) {
 }
 
 export interface MeetingFetchOptions {
-    position?: MeetingPosition,
-    location?: string
+    position?: MeetingPosition | null,
+    location?: string | null
 }
 
 export async function fetchMeetings(opts?: MeetingFetchOptions): Promise<Meeting[]> {

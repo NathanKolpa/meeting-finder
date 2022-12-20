@@ -12,11 +12,15 @@ document.body.onload = async () => {
     results.setViewOnMapCallback(m => map.focus(m));
 
     searchBar.setOnSearchCallback(async query => {
-        let position = await fetchPositionByQuery(query.location);
+        let position = null;
 
-        if (!position) {
-            searchBar.setLocationError('Cannot find any matches');
-            return;
+        if (query.location) {
+            position = await fetchPositionByQuery(query.location);
+
+            if (!position) {
+                searchBar.setLocationError('Cannot find any matches');
+                return;
+            }
         }
 
         map.clear();
@@ -33,7 +37,10 @@ document.body.onload = async () => {
 
         results.addMeetings(meetings);
         map.addMeetings(meetings);
-        map.goToPosition(position);
+
+        if (position) {
+            map.goToPosition(position);
+        }
     })
 
     let meetings = await fetchMeetings();
