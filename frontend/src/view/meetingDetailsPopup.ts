@@ -44,7 +44,7 @@ export class MeetingDetailsPopup {
 
         if (meeting.notes) {
             this.notes.hidden = false;
-            this.notes.innerText = meeting.notes;
+            this.setTextWithLinks(this.notes, meeting.notes);
         }
         else {
             this.notes.hidden = true;
@@ -104,4 +104,42 @@ export class MeetingDetailsPopup {
             awaitCloseAnimation: true,
         })
     }
+
+    private setTextWithLinks(element: HTMLElement, text: string) {
+        element.replaceChildren();
+
+        const emailRegex = /([a-z0-9._-]+@[a-z0-9.-]+\.[a-z]{2,4})/;
+        const urlRegex = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/;
+
+        const regexList = [emailRegex, urlRegex];
+
+        const combinedRegex = new RegExp(regexList.map(r => r.source).join('|'));
+
+        let parts = text.split(combinedRegex).filter(x => x !== undefined);
+
+        for (const part of parts) {
+            let textElement: HTMLElement;
+
+            if (part.match(combinedRegex)) {
+                let anchorElement = document.createElement('a');
+                anchorElement.innerText = part;
+
+                if (part.match(emailRegex)) {
+                    anchorElement.href = `mailto:${part}`;
+                }
+                else if (part.match(urlRegex)) {
+                    anchorElement.href = part;
+                }
+
+                textElement = anchorElement;
+            }
+            else {
+                textElement = document.createElement('span');
+                textElement.innerText = part;
+            }
+
+            element.appendChild(textElement);
+        }
+    }
+
 }

@@ -42,10 +42,15 @@
     align-items: center;
   }
 
-  .separator {
+  fieldset {
+    border: 0;
+  }
+
+  .separator,
+  fieldset {
     padding-bottom: $padding;
     padding-top: $padding;
-    border-bottom: 2px solid $grey;
+    border-top: 2px solid $grey;
   }
 
   .location-notes {
