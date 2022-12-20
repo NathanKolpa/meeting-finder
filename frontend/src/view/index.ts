@@ -9,7 +9,7 @@ export function initialize(): PageComponents {
     MicroModal.init();
 
     return [
-        new ResultsList('results', 'loading'),
+        new ResultsList('result-list'),
         new MeetingMap('map'),
         new MeetingDetailsPopup('meetingModal')
     ]

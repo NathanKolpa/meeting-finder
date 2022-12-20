@@ -25,4 +25,11 @@ button {
     background: darken($primary-color, 10);
     border-color: darken($primary-color, 10);
   }
+
+  &:disabled {
+    cursor: unset;
+    background: $white;
+    color: $grey;
+    border-color: $grey;
+  }
 }

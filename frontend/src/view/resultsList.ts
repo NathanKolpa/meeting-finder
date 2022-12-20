@@ -2,20 +2,39 @@ import {Meeting} from "../models";
 import {getLogoImgUrlByOrg} from "./logo";
 import {MeetingCallback} from "./callback";
 
+const PAGE_SIZE = 20;
+
 interface ResultListItemActions {
+    remove: () => void
 }
 
 export class ResultsList {
+    private resultListContainer: HTMLElement;
     private resultsElement: HTMLElement;
+    private nextPageButton: HTMLButtonElement;
+    private prevPageButton: HTMLButtonElement;
+
     private loadingText: HTMLElement;
     private actions: { [id: number]: ResultListItemActions } = {};
     private isLoading = true;
     private viewOnMapCallback: MeetingCallback = null;
     private showInfoCallback: MeetingCallback = null;
 
-    public constructor(resultsId: string, loadingId: string) {
-        this.resultsElement = this.findElementOrThrow(resultsId);
-        this.loadingText = this.findElementOrThrow(loadingId);
+    private meetings: Meeting[] = [];
+    private currentPage = 0;
+
+    public constructor(resultsList: string) {
+        this.resultListContainer = this.findElementOrThrow(resultsList);
+
+        this.resultsElement = this.findElementByClass(this.resultListContainer, 'results');
+        this.loadingText = this.findElementByClass(this.resultListContainer, 'loading');
+        this.nextPageButton = this.findElementByClass(this.resultListContainer, 'next-page') as HTMLButtonElement;
+        this.prevPageButton = this.findElementByClass(this.resultListContainer, 'prev-page') as HTMLButtonElement;
+
+        this.nextPageButton.onclick = () => this.nextPage();
+        this.prevPageButton.onclick = () => this.prevPage();
+
+        this.updatePaginationDisabledState();
     }
 
     private findElementOrThrow(id: string) {
@@ -27,12 +46,27 @@ export class ResultsList {
         return element;
     }
 
+    private findElementByClass(parent: HTMLElement, classStr: string): HTMLElement {
+        let element = parent.getElementsByClassName(classStr)[0];
+
+        if (!element) {
+            throw new Error(`Cannot find element .${classStr}`);
+        }
+        return element as HTMLElement;
+    }
+
     private clear() {
+        this.emptyList();
+        this.currentPage = 0;
+        this.meetings = [];
+    }
+
+    private emptyList() {
         this.actions = {};
         this.resultsElement.replaceChildren();
     }
 
-    public addMeeting(meeting: Meeting) {
+    private addMeetingToList(meeting: Meeting) {
         if (this.isLoading) {
             throw new Error('Cannot add meetings while loading, call setLoading(false) first')
         }
@@ -112,25 +146,85 @@ export class ResultsList {
 
         logo.src = getLogoImgUrlByOrg(meeting.org);
 
-        this.actions[meeting.id] = {};
+        this.actions[meeting.id] = {
+            remove: () => li.remove()
+        };
 
         this.resultsElement.appendChild(li);
     }
 
     public addMeetings(meetings: Meeting[]) {
-        for (const meeting of meetings) {
-            this.addMeeting(meeting);
+        this.meetings = this.meetings.concat(meetings);
+        this.updatePaginationDisabledState();
+
+        const { meetingsToAdd, startIndex } = this.getPaginationInfoForPage(this.currentPage);
+
+        for (let i = startIndex; i < meetingsToAdd + startIndex; i++) {
+            this.addMeetingToList(this.meetings[i]);
         }
+    }
+
+    public nextPage() {
+        this.setPage(this.currentPage + 1);
+    }
+
+    public prevPage() {
+        this.setPage(this.currentPage - 1);
+    }
+
+    public setPage(page: number) {
+        const { meetingsToAdd, startIndex, exceedsBounds } = this.getPaginationInfoForPage(page);
+
+        if (exceedsBounds) {
+            return;
+        }
+
+        this.currentPage = page;
+
+        this.updatePaginationDisabledState();
+        this.emptyList();
+
+        for (let i = startIndex; i < meetingsToAdd + startIndex; i++) {
+            this.addMeetingToList(this.meetings[i]);
+        }
+
+        this.resultListContainer.scrollTo({ top: 0 });
+    }
+
+    private updatePaginationDisabledState() {
+        const nextPageInfo = this.getPaginationInfoForPage(this.currentPage + 1);
+        const prevPageInfo = this.getPaginationInfoForPage(this.currentPage - 1);
+
+        this.nextPageButton.disabled = nextPageInfo.exceedsBounds;
+        this.prevPageButton.disabled = prevPageInfo.exceedsBounds;
+
+        this.nextPageButton.hidden = this.isLoading;
+        this.prevPageButton.hidden = this.isLoading;
+    }
+
+    private getPaginationInfoForPage(page: number): { startIndex: number, meetingsToAdd: number, exceedsBounds: boolean } {
+        const startIndex = PAGE_SIZE * page;
+        const totalPages = Math.ceil(this.meetings.length / PAGE_SIZE);
+        const meetingsToAdd = Math.min(Math.max(this.meetings.length - startIndex, 0), PAGE_SIZE);
+        const exceedsBounds = (page > totalPages - 1 || page < 0) && page != 0;
+
+        return {
+            startIndex,
+            meetingsToAdd,
+            exceedsBounds
+        };
+    }
+
+    public setMeetings(meetings: Meeting[]) {
+        this.clear();
+        this.addMeetings(meetings);
     }
 
     public setLoading(isLoading: boolean) {
         this.loadingText.hidden = !isLoading;
-
-        if (isLoading) {
-            this.clear();
-        }
-
         this.isLoading = isLoading;
+
+        this.updatePaginationDisabledState();
     }
 
     public setViewOnMapCallback(callback: MeetingCallback) {
