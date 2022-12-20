@@ -16,6 +16,7 @@ export class MeetingDetailsPopup {
     private phone: HTMLAnchorElement;
     private locationInfoTable: HTMLElement;
     private locationNotes: HTMLElement;
+    private notesContainer: HTMLElement;
     private time: HTMLElement;
     private source: HTMLAnchorElement;
 
@@ -37,17 +38,18 @@ export class MeetingDetailsPopup {
         this.phone = root.getElementsByClassName('phone').item(0) as HTMLAnchorElement;
         this.phoneRow = root.getElementsByClassName('phoneRow').item(0) as HTMLElement;
         this.time = root.getElementsByClassName('time').item(0) as HTMLElement;
+        this.notesContainer = root.getElementsByClassName('notes-container').item(0) as HTMLElement;
     }
 
     public showMeeting(meeting: Meeting) {
         this.title.innerText = meeting.name;
 
         if (meeting.notes) {
-            this.notes.hidden = false;
+            this.notesContainer.hidden = false;
             this.setTextWithLinks(this.notes, meeting.notes);
         }
         else {
-            this.notes.hidden = true;
+            this.notesContainer.hidden = true;
         }
 
         this.locationInfoTable.hidden = !meeting.country && !meeting.region;
