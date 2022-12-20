@@ -6,3 +6,10 @@ html, body {
 main {
   padding: $padding;
 }
+
+@include mobilefirst($large-break) {
+  main {
+    margin: auto;
+    width: calc(100% - 100px);
+  }
+}
