@@ -55,7 +55,7 @@ export class ResultsList {
         return element as HTMLElement;
     }
 
-    private clear() {
+    public clear() {
         this.emptyList();
         this.currentPage = 0;
         this.meetings = [];

@@ -12,7 +12,7 @@ import {
     tileLayer
 } from "leaflet";
 import 'leaflet.markercluster';
-import {Meeting, Organization} from "../models";
+import {Meeting, MeetingPosition, Organization} from "../models";
 import {getLogoImgUrlByOrg} from "./logo";
 import {MeetingCallback} from "./callback";
 
@@ -166,6 +166,10 @@ export class MeetingMap {
         this.actions[meeting.id]?.focus();
     }
 
+    public goToPosition(position: MeetingPosition) {
+        this.map.flyTo([position.latitude, position.longitude], 10);
+    }
+
     public clear() {
         for (const actions of Object.values(this.actions)) {
             actions.remove();
@@ -174,7 +178,7 @@ export class MeetingMap {
         this.actions = {};
     }
 
-    private getMapIconByOrg(org: Organization): L.Icon {
+    private getMapIconByOrg(org: Organization): Icon {
         const cached = this.iconCache[org];
 
         if (cached) {

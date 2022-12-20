@@ -1,16 +1,40 @@
 import './style/main.scss'
 
 import {initialize} from "./view";
-import {fetchMeetings} from "./api";
+import {fetchMeetings, fetchPositionByQuery} from "./api";
 
 
 document.body.onload = async () => {
-    let [results, map, popup] = initialize();
-
+    let [results, map, popup, searchBar] = initialize();
 
     map.setMeetingClickCallback(m => popup.showMeeting(m));
     results.setShowInfoCallback(m => popup.showMeeting(m));
     results.setViewOnMapCallback(m => map.focus(m));
+
+    searchBar.setOnSearchCallback(async query => {
+        let position = await fetchPositionByQuery(query.location);
+
+        if (!position) {
+            searchBar.setLocationError('Cannot find any matches');
+            return;
+        }
+
+        map.clear();
+        results.clear();
+
+        results.setLoading(true);
+
+        let meetings = await fetchMeetings({
+            position,
+            location: query.location
+        })
+
+        results.setLoading(false);
+
+        results.addMeetings(meetings);
+        map.addMeetings(meetings);
+        map.goToPosition(position);
+    })
 
     let meetings = await fetchMeetings();
 

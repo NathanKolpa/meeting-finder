@@ -1,11 +1,34 @@
-import {Meeting} from "./models";
+import {Meeting, MeetingPosition} from "../models";
 
 function pad(a: any, b: number) {
     return ([1e15] + a).slice(-b)
 }
 
-export async function fetchMeetings(): Promise<Meeting[]> {
-    const request = await fetch(import.meta.env.VITE_API_URL);
+export interface MeetingFetchOptions {
+    position?: MeetingPosition,
+    location?: string
+}
+
+export async function fetchMeetings(opts?: MeetingFetchOptions): Promise<Meeting[]> {
+    let url = import.meta.env.VITE_API_URL;
+
+    if (opts) {
+        url += '?';
+
+        if (opts.position) {
+            url += `longitude=${encodeURIComponent(opts.position.longitude)}&latitude=${encodeURIComponent(opts.position.latitude)}`;
+        }
+
+        if (opts.location) {
+            if (opts.position) {
+                url += '&';
+            }
+
+            url += `location=${encodeURIComponent(opts.location)}`;
+        }
+    }
+
+    const request = await fetch(url);
     const response = await request.json() as ApiMeeting[];
 
     let id = 0;
