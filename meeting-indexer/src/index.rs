@@ -8,6 +8,7 @@ use std::time::Duration;
 
 use chrono::NaiveTime;
 use rusqlite::{Connection, named_params, OpenFlags, params, ToSql, Transaction};
+use serde::Serialize;
 use thiserror::Error;
 use tokio::task::spawn_blocking;
 
@@ -22,6 +23,12 @@ pub struct DistanceSearch {
 #[derive(Default)]
 pub struct SearchOptions {
     pub distance: Option<DistanceSearch>,
+}
+
+#[derive(Serialize)]
+pub struct SearchMeeting {
+    pub meeting: Meeting,
+    pub distance: Option<f64>,
 }
 
 #[derive(Error, Debug)]
@@ -156,7 +163,7 @@ impl MeetingIndex {
         Ok(())
     }
 
-    pub async fn search(&self, opts: &SearchOptions) -> Result<Vec<Meeting>, IndexError> {
+    pub async fn search(&self, opts: &SearchOptions) -> Result<Vec<SearchMeeting>, IndexError> {
         let mut query = String::from("SELECT ");
 
         let mut params: Vec<(&str, &dyn ToSql)> = Vec::new();
@@ -169,11 +176,14 @@ impl MeetingIndex {
     * (1.0 - COS((longitude - :long) * 0.017453292519943295)) / 2.0))
 ) as distance, ")
         }
+        else {
+            query.push_str("NULL as distance, ");
+        }
 
         query.push_str("* FROM MEETINGS");
 
         if opts.distance.is_some() {
-            query.push_str("\nWHERE distance < :distance")
+            query.push_str("\nWHERE distance < :distance\nORDER BY distance")
         }
 
         if let Some(distance) = &opts.distance {
@@ -197,33 +207,36 @@ impl MeetingIndex {
 
             // TODO: handle parse errors
 
-            Ok(Meeting {
-                name: row.get("name")?,
-                org: row.get::<_, String>("org")?.parse().unwrap(),
-                notes: row.get("notes")?,
-                source: row.get("source")?,
-                contact: Contact {
-                    email: row.get("email")?,
-                    phone: row.get("phone")?,
-                },
-                location: Location {
-                    position,
-                    location_name: row.get("location_name")?,
-                    location_notes: row.get("location_notes")?,
-                    country: row.get("country")?,
-                    region: row.get("region")?,
-                    address: row.get("address")?,
-                },
-                online_options: OnlineOptions {
-                    online_url: row.get("online_url")?,
-                    notes: row.get("online_notes")?,
-                    is_online: row.get("online")?,
-                },
-                time: MeetingTime::Recurring {
-                    day: WeekDay::from_day_index(row.get("day")?),
-                    time: row.get::<_, String>("time")?.parse().unwrap(),
-                },
-                duration: row.get::<_, Option<u64>>("duration")?.map(|secs| Duration::from_secs(secs)),
+            Ok(SearchMeeting {
+                distance: row.get("distance")?,
+                meeting: Meeting {
+                    name: row.get("name")?,
+                    org: row.get::<_, String>("org")?.parse().unwrap(),
+                    notes: row.get("notes")?,
+                    source: row.get("source")?,
+                    contact: Contact {
+                        email: row.get("email")?,
+                        phone: row.get("phone")?,
+                    },
+                    location: Location {
+                        position,
+                        location_name: row.get("location_name")?,
+                        location_notes: row.get("location_notes")?,
+                        country: row.get("country")?,
+                        region: row.get("region")?,
+                        address: row.get("address")?,
+                    },
+                    online_options: OnlineOptions {
+                        online_url: row.get("online_url")?,
+                        notes: row.get("online_notes")?,
+                        is_online: row.get("online")?,
+                    },
+                    time: MeetingTime::Recurring {
+                        day: WeekDay::from_day_index(row.get("day")?),
+                        time: row.get::<_, String>("time")?.parse().unwrap(),
+                    },
+                    duration: row.get::<_, Option<u64>>("duration")?.map(|secs| Duration::from_secs(secs)),
+                }
             })
         })?;
 

@@ -93,9 +93,9 @@ export class ResultsList {
                     </div>
                     
                     <ul class="subtext">
+                        <li class="distance">[Distance] <span>km</span></li>
                         <li class="country">[Country]</li>
                         <li class="region">[Region]</li>
-                        <li class="distance">[Distance] <span>km</span></li>
                         <li class="online">[online]</li>
                     </ul>
                     
@@ -122,7 +122,7 @@ export class ResultsList {
         setTextOrRemoveIfNull(meeting.name, name);
         setTextOrRemoveIfNull(meeting.country, country);
         setTextOrRemoveIfNull(meeting.region, region);
-        setTextOrRemoveIfNull(meeting.distance ? meeting.distance + ' km' : null, distance);
+        setTextOrRemoveIfNull(meeting.distance ? Math.round(meeting.distance) + ' km' : null, distance);
         setTextOrRemoveIfNull(meeting.formattedTime, time);
         setTextOrRemoveIfNull(meeting.online ? 'online' : null, online);
 

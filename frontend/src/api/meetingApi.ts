@@ -33,11 +33,12 @@ export async function fetchMeetings(opts?: MeetingFetchOptions): Promise<Meeting
     }
 
     const request = await fetch(url);
-    const response = await request.json() as ApiMeeting[];
+    const response = await request.json() as ApiSearchMeeting[];
 
     let id = 0;
 
-    return response.map(apiMeeting => {
+    return response.map(searchMeeting => {
+        let apiMeeting = searchMeeting.meeting;
 
         let isRecurring = !!apiMeeting.time.recurring;
         let formattedTime = '';
@@ -72,7 +73,7 @@ export async function fetchMeetings(opts?: MeetingFetchOptions): Promise<Meeting
             address: apiMeeting.location.address,
             region: apiMeeting.location.address,
             onlineUrl: apiMeeting.online_options.online_url,
-            distance: 0,
+            distance: searchMeeting.distance,
             source: apiMeeting.source,
             time: apiMeeting.time.recurring.time,
             durationInSecs: apiMeeting.duration?.secs,
@@ -85,6 +86,11 @@ export async function fetchMeetings(opts?: MeetingFetchOptions): Promise<Meeting
             formattedTime
         };
     })
+}
+
+interface ApiSearchMeeting {
+    meeting: ApiMeeting;
+    distance: number | null;
 }
 
 interface ApiMeeting {
