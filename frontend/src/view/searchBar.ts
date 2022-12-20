@@ -1,5 +1,6 @@
 export interface SearchQuery {
     location: string | null;
+    distance: number
 }
 
 export type SearchCallback = ((query: SearchQuery) => void) | null;
@@ -18,9 +19,17 @@ export class SearchBar {
             const data = new FormData(this.form);
 
             let location = data.get('location') as string;
+            let distance = parseFloat(data.get('distance') as string);
+
+            // don't search on location when distance is set to "all"
+            if (isNaN(distance)) {
+                distance = 0;
+                location = "";
+            }
 
             this.submit({
-                location: location == "" ? null : location
+                location: location == "" ? null : location,
+                distance: distance
             });
         }
     }

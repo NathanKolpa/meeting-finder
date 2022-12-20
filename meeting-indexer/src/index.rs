@@ -5,13 +5,24 @@ use std::{
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
-use chrono::{NaiveTime};
 
-use rusqlite::{Connection, OpenFlags, params, Transaction};
+use chrono::NaiveTime;
+use rusqlite::{Connection, named_params, OpenFlags, params, ToSql, Transaction};
 use thiserror::Error;
 use tokio::task::spawn_blocking;
 
 use crate::meeting::*;
+
+pub struct DistanceSearch {
+    pub latitude: f64,
+    pub longitude: f64,
+    pub distance: f64,
+}
+
+#[derive(Default)]
+pub struct SearchOptions {
+    pub distance: Option<DistanceSearch>,
+}
 
 #[derive(Error, Debug)]
 pub enum IndexError {
@@ -21,7 +32,7 @@ pub enum IndexError {
 
 pub struct MeetingImport<'index> {
     tx: Transaction<'index>,
-    total_meetings: AtomicUsize
+    total_meetings: AtomicUsize,
 }
 
 impl<'index> MeetingImport<'index> {
@@ -145,17 +156,42 @@ impl MeetingIndex {
         Ok(())
     }
 
-    pub async fn search(&self) -> Result<Vec<Meeting>, IndexError> {
-        let mut stmt = self.conn.prepare("SELECT * FROM meetings")?;
+    pub async fn search(&self, opts: &SearchOptions) -> Result<Vec<Meeting>, IndexError> {
+        let mut query = String::from("SELECT ");
 
-        let rows = stmt.query_map(params![], |row| {
+        let mut params: Vec<(&str, &dyn ToSql)> = Vec::new();
+
+        if opts.distance.is_some() {
+            // from https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula
+            query.push_str("(
+    12742 * ASIN(SQRT(0.5 - COS((latitude - :lat) * 0.017453292519943295) / 2.0
+    +  COS(:lat * 0.017453292519943295) * COS(latitude * 0.017453292519943295)
+    * (1.0 - COS((longitude - :long) * 0.017453292519943295)) / 2.0))
+) as distance, ")
+        }
+
+        query.push_str("* FROM MEETINGS");
+
+        if opts.distance.is_some() {
+            query.push_str("\nWHERE distance < :distance")
+        }
+
+        if let Some(distance) = &opts.distance {
+            params.push((":lat", &distance.latitude));
+            params.push((":long", &distance.longitude));
+            params.push((":distance", &distance.distance));
+        }
+
+        let mut stmt = self.conn.prepare(query.as_str())?;
+
+        let rows = stmt.query_map(params.as_slice(), |row| {
             let position = match (row.get("latitude")?, row.get("longitude")?) {
                 (Some(latitude), Some(longitude)) => {
                     Some(Position {
                         latitude,
-                        longitude
+                        longitude,
                     })
-                },
+                }
                 _ => None
             };
 
@@ -197,7 +233,7 @@ impl MeetingIndex {
     pub async fn start_import(&mut self) -> Result<MeetingImport<'_>, IndexError> {
         Ok(MeetingImport {
             tx: self.conn.transaction()?,
-            total_meetings: Default::default()
+            total_meetings: Default::default(),
         })
     }
 }

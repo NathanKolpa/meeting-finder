@@ -171,10 +171,7 @@ export class MeetingMap {
     }
 
     public clear() {
-        for (const actions of Object.values(this.actions)) {
-            actions.remove();
-        }
-
+        this.cluster.clearLayers();
         this.actions = {};
     }
 

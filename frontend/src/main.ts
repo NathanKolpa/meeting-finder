@@ -13,6 +13,7 @@ document.body.onload = async () => {
 
     searchBar.setOnSearchCallback(async query => {
         let position = null;
+        let distanceOpt = undefined;
 
         if (query.location) {
             position = await fetchPositionByQuery(query.location);
@@ -29,7 +30,7 @@ document.body.onload = async () => {
         results.setLoading(true);
 
         let meetings = await fetchMeetings({
-            position,
+            distance: position ? {position, distance: query.distance} : undefined,
             location: query.location
         })
 

@@ -4,8 +4,13 @@ function pad(a: any, b: number) {
     return ([1e15] + a).slice(-b)
 }
 
+export interface MeetingFetchDistanceOptions {
+    position: MeetingPosition,
+    distance: number
+}
+
 export interface MeetingFetchOptions {
-    position?: MeetingPosition | null,
+    distance?: MeetingFetchDistanceOptions
     location?: string | null
 }
 
@@ -15,12 +20,11 @@ export async function fetchMeetings(opts?: MeetingFetchOptions): Promise<Meeting
     if (opts) {
         url += '?';
 
-        if (opts.position) {
-            url += `longitude=${encodeURIComponent(opts.position.longitude)}&latitude=${encodeURIComponent(opts.position.latitude)}`;
+        if (opts.distance) {
+            url += `longitude=${encodeURIComponent(opts.distance.position.longitude)}&latitude=${encodeURIComponent(opts.distance.position.latitude)}&distance=${encodeURIComponent(opts.distance.distance)}`;
         }
-
         if (opts.location) {
-            if (opts.position) {
+            if (opts.distance) {
                 url += '&';
             }
 
