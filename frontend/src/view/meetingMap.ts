@@ -163,6 +163,7 @@ export class MeetingMap {
     }
 
     public focus(meeting: Meeting) {
+        document.scrollingElement?.scroll({ top: 0 });
         this.actions[meeting.id]?.focus();
     }
 
