@@ -1,6 +1,6 @@
-import {Meeting} from "../models";
+import { Meeting } from "../models";
 import MicroModal from "micromodal";
-import {getLogoImgUrlByOrg} from "./logo";
+import { getLogoImgUrlByOrg } from "./logo";
 
 export class MeetingDetailsPopup {
     private logo: HTMLImageElement;

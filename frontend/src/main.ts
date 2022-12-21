@@ -1,7 +1,7 @@
 import './style/main.scss'
 
-import {initialize} from "./view";
-import {fetchMeetings, fetchPositionByQuery} from "./api";
+import { initialize } from "./view";
+import { fetchMeetings, fetchPositionByQuery } from "./api";
 
 
 document.body.onload = async () => {
@@ -30,7 +30,7 @@ document.body.onload = async () => {
         results.setLoading(true);
 
         let meetings = await fetchMeetings({
-            distance: position ? {position, distance: query.distance} : undefined,
+            distance: position ? { position, distance: query.distance } : undefined,
             location: query.location
         })
 

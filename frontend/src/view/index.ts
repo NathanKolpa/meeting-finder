@@ -1,8 +1,8 @@
-import {ResultsList} from "./resultsList";
-import {MeetingMap} from "./meetingMap";
-import {MeetingDetailsPopup} from "./meetingDetailsPopup";
+import { ResultsList } from "./resultsList";
+import { MeetingMap } from "./meetingMap";
+import { MeetingDetailsPopup } from "./meetingDetailsPopup";
 import MicroModal from 'micromodal';
-import {SearchBar} from "./searchBar";
+import { SearchBar } from "./searchBar";
 
 export type PageComponents = [ResultsList, MeetingMap, MeetingDetailsPopup, SearchBar];
 

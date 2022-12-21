@@ -1,6 +1,6 @@
-import {Meeting} from "../models";
-import {getLogoImgUrlByOrg} from "./logo";
-import {MeetingCallback} from "./callback";
+import { Meeting } from "../models";
+import { getLogoImgUrlByOrg } from "./logo";
+import { MeetingCallback } from "./callback";
 
 const PAGE_SIZE = 20;
 

@@ -1,4 +1,4 @@
-import {MeetingPosition} from "../models";
+import { MeetingPosition } from "../models";
 
 export async function fetchPositionByQuery(query: string): Promise<MeetingPosition | null> {
     const request = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json`);
@@ -17,16 +17,16 @@ export async function fetchPositionByQuery(query: string): Promise<MeetingPositi
 }
 
 export interface Place {
-    place_id:     number;
-    licence:      string;
-    osm_type:     string;
-    osm_id:       number;
-    boundingbox:  string[];
-    lat:          string;
-    lon:          string;
+    place_id: number;
+    licence: string;
+    osm_type: string;
+    osm_id: number;
+    boundingbox: string[];
+    lat: string;
+    lon: string;
     display_name: string;
-    class:        string;
-    type:         string;
-    importance:   number;
-    icon?:        string;
+    class: string;
+    type: string;
+    importance: number;
+    icon?: string;
 }

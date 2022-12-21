@@ -6,14 +6,14 @@ import cmaLogoUrl from '../assets/logos/cma_resize.webp';
 import codaLogoUrl from '../assets/logos/coda.png';
 
 export function getLogoImgUrlByOrg(org: Organization): string {
-	switch (org) {
-		case "AnonymousAlcoholics":
-			return aaLogoUrl;
-		case "DebtorsAnonymous":
-			return daLogoUrl;
-		case "CrystalMethAnonymous":
-			return cmaLogoUrl;
-		case "CodependentsAnonymous":
-			return codaLogoUrl;
-	}
+    switch (org) {
+        case "AnonymousAlcoholics":
+            return aaLogoUrl;
+        case "DebtorsAnonymous":
+            return daLogoUrl;
+        case "CrystalMethAnonymous":
+            return cmaLogoUrl;
+        case "CodependentsAnonymous":
+            return codaLogoUrl;
+    }
 }

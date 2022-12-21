@@ -1,3 +1,3 @@
-import {Meeting} from "../models";
+import { Meeting } from "../models";
 
 export type MeetingCallback = ((meeting: Meeting) => void) | null;

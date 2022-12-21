@@ -1,4 +1,4 @@
-import {Meeting, MeetingPosition} from "../models";
+import { Meeting, MeetingPosition } from "../models";
 
 function pad(a: any, b: number) {
     return ([1e15] + a).slice(-b)
