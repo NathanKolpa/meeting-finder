@@ -1,0 +1,13 @@
+.gitignore
+.editorconfig
+
+meeting-indexer/target/**/*
+
+frontend/node_modules/**/*
+frontend/dist/**/*
+
+.idea
+.idea/**/*
+
+.git/**/*
+.git

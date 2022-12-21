@@ -1,17 +1,15 @@
-#![feature(async_closure)]
-
 extern crate core;
 
 use std::error::Error;
 use std::net::IpAddr;
 
+use crate::server::start_server;
 use clap::{Parser, Subcommand};
 use source::FetchMeetingResult;
 use tokio::{
     join,
     sync::mpsc::{channel, Receiver},
 };
-use crate::server::start_server;
 
 pub mod index;
 pub mod meeting;
@@ -29,8 +27,8 @@ enum Commands {
         port: u16,
 
         #[arg(short, long)]
-        address: IpAddr
-    }
+        address: IpAddr,
+    },
 }
 
 #[derive(Parser)]
@@ -99,8 +97,7 @@ async fn sync_index(index: &mut index::MeetingIndex) -> Result<(), index::IndexE
     if meeting_count > 0 {
         import.commit().await?;
         println!("Committed the staging to the database with {meeting_count} meetings total");
-    }
-    else {
+    } else {
         eprintln!("Refusing to commit the staging to the database because it contains 0 meetings");
     }
 
