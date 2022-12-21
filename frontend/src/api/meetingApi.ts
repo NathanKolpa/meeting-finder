@@ -15,7 +15,7 @@ export interface MeetingFetchOptions {
 }
 
 export async function fetchMeetings(opts?: MeetingFetchOptions): Promise<Meeting[]> {
-    let url = import.meta.env.VITE_API_URL;
+    let url = import.meta.env.VITE_API_URL + '/meetings';
 
     if (opts) {
         url += '?';

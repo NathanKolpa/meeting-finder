@@ -4,9 +4,12 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use actix_cors::Cors;
-use actix_web::{App, get, HttpRequest, HttpResponse, HttpServer, middleware::Logger, Responder, ResponseError, web};
 use actix_web::body::BoxBody;
 use actix_web::http::StatusCode;
+use actix_web::{
+    get, middleware::Logger, web, App, HttpRequest, HttpResponse, HttpServer, Responder,
+    ResponseError,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::index::{DistanceSearch, IndexError, MeetingIndex, SearchOptions};
@@ -27,9 +30,13 @@ impl Into<SearchOptions> for SearchQuery {
     fn into(self) -> SearchOptions {
         SearchOptions {
             distance: match (self.longitude, self.latitude, self.distance) {
-                (Some(longitude), Some(latitude), Some(distance)) => Some(DistanceSearch { latitude, longitude, distance }),
-                _ => None
-            }
+                (Some(longitude), Some(latitude), Some(distance)) => Some(DistanceSearch {
+                    latitude,
+                    longitude,
+                    distance,
+                }),
+                _ => None,
+            },
         }
     }
 }
@@ -40,22 +47,28 @@ impl ResponseError for IndexError {
     }
 
     fn error_response(&self) -> HttpResponse<BoxBody> {
-        HttpResponse::build(self.status_code())
-            .json(ApiError {
-                message: self.to_string(),
-            })
+        HttpResponse::build(self.status_code()).json(ApiError {
+            message: self.to_string(),
+        })
     }
 }
 
-#[get("/")]
-async fn index(meeting_index: web::Data<MeetingIndex>, query: web::Query<SearchQuery>) -> Result<impl Responder, IndexError> {
+#[get("/meetings")]
+async fn index(
+    meeting_index: web::Data<MeetingIndex>,
+    query: web::Query<SearchQuery>,
+) -> Result<impl Responder, IndexError> {
     let query = query.into_inner();
 
     let meetings = meeting_index.search(&query.into()).await?;
     Ok(web::Json(meetings))
 }
 
-pub async fn start_server(meeting_index: MeetingIndex, address: IpAddr, port: u16) -> std::io::Result<()> {
+pub async fn start_server(
+    meeting_index: MeetingIndex,
+    address: IpAddr,
+    port: u16,
+) -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
     HttpServer::new(move || {
@@ -71,7 +84,7 @@ pub async fn start_server(meeting_index: MeetingIndex, address: IpAddr, port: u1
             .app_data(web::Data::new(meeting_index.clone()))
             .service(index)
     })
-        .bind((address, port))?
-        .run()
-        .await
+    .bind((address, port))?
+    .run()
+    .await
 }
