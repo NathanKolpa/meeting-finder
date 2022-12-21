@@ -189,6 +189,10 @@ export class ResultsList {
         }
 
         this.resultListContainer.scrollTo({ top: 0 });
+
+        if (document.scrollingElement?.scrollTop || 0 > this.resultListContainer.offsetTop) {
+            this.resultListContainer.scrollIntoView();
+        }
     }
 
     private updatePaginationDisabledState() {
