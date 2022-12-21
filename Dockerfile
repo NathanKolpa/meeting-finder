@@ -31,8 +31,10 @@ RUN cp -r dist /dist
 
 FROM alpine:latest
 
+RUN adduser -D -g '' meeting-indexer
+RUN chown meeting-indexer meeting-indexer
+
 RUN mkdir /usr/share/meeting-indexer
-VOLUME ["/usr/share/meeting-indexer"]
 
 # Install programs
 RUN apk update
@@ -47,5 +49,4 @@ COPY docker/crontab /etc/crontab
 COPY --from=build-indexer /dist/meeting-indexer /usr/bin/meeting-indexer
 COPY --from=build-frontend /dist/* /var/www/html
 
-EXPOSE "80"
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
