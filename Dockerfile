@@ -31,9 +31,6 @@ RUN cp -r dist /dist
 
 FROM alpine:latest
 
-RUN adduser -D -g '' meeting-indexer
-RUN chown meeting-indexer meeting-indexer
-
 RUN mkdir /usr/share/meeting-indexer
 
 # Install programs
