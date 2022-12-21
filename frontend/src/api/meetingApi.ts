@@ -11,7 +11,6 @@ export interface MeetingFetchDistanceOptions {
 
 export interface MeetingFetchOptions {
     distance?: MeetingFetchDistanceOptions
-    location?: string | null
 }
 
 export async function fetchMeetings(opts?: MeetingFetchOptions): Promise<Meeting[]> {
@@ -22,13 +21,6 @@ export async function fetchMeetings(opts?: MeetingFetchOptions): Promise<Meeting
 
         if (opts.distance) {
             url += `longitude=${encodeURIComponent(opts.distance.position.longitude)}&latitude=${encodeURIComponent(opts.distance.position.latitude)}&distance=${encodeURIComponent(opts.distance.distance)}`;
-        }
-        if (opts.location) {
-            if (opts.distance) {
-                url += '&';
-            }
-
-            url += `location=${encodeURIComponent(opts.location)}`;
         }
     }
 

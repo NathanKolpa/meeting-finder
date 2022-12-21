@@ -23,7 +23,7 @@ COPY frontend/package-lock.json .
 RUN npm install
 
 # Build frontend
-COPY docker/env.production .
+COPY docker/.env.production .
 COPY frontend .
 RUN npm run build
 

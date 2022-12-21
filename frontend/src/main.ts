@@ -31,7 +31,6 @@ document.body.onload = async () => {
 
         let meetings = await fetchMeetings({
             distance: position ? { position, distance: query.distance } : undefined,
-            location: query.location
         })
 
         results.setLoading(false);
