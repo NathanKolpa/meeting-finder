@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content="Find meetings in your area">
-    <meta name="keywords" content="12 step meetings, recovery, Meetings, Interactive map">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+        content="We help people that want to recover from addiction or other problem behavior by making information more accessible. We achieve this by putting all information spread across multiple different websites on one single page.">
+
+    <meta name="keywords"
+        content="12 step meetings, Recovery, Meetings, Interactive map, Addiction, 12 step programs, Alcoholics Anonymous, Narcotics Anonymous">
+
     <meta name="author" content="Nathan Kolpa">
 
     <title>Meeting Finder</title>
@@ -24,142 +29,155 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7BHG371B7Z"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() {dataLayer.push(arguments);}
         gtag('js', new Date());
 
         gtag('config', 'G-7BHG371B7Z');
     </script>
 
 </head>
+
 <body>
 
-<noscript style="text-align: center">
-    <h1>This application requires javascript in order to run</h1>
-</noscript>
+    <noscript style="text-align: center">
+        <h1>This application requires javascript in order to run</h1>
+    </noscript>
 
-<div class="app">
-    <main>
-        <div id="top"></div>
-        <div class="meeting-finder">
-            <!-- https://www.mapuipatterns.com/store-locator/-->
-            <div class="search">
-                <h1>Find meetings in your area.</h1>
+    <div class="app">
+        <main>
+            <div id="top"></div>
+            <div class="meeting-finder">
+                <!-- https://www.mapuipatterns.com/store-locator/-->
+                <div class="search">
+                    <h1>Find meetings in your area.</h1>
 
-                <form method="GET" class="filters" id="search">
-                    <div class="input-fields">
-                        <label class="form-group location">
-                            <input class="form-control control-left" type="text"
-                                   placeholder="Enter a city, address, postal code, etc..."
-                                   name="location">
-                            <div class="absolute-container">
-                                <small class="absolute-inner location-feedback" hidden="">[feedback]</small>
-                            </div>
-                        </label>
+                    <form method="GET" class="filters" id="search">
+                        <div class="input-fields">
+                            <label class="form-group location">
+                                <input class="form-control control-left" type="text"
+                                    placeholder="Enter a city, address, postal code, etc..." name="location">
+                                <div class="absolute-container">
+                                    <small class="absolute-inner location-feedback" hidden="">[feedback]</small>
+                                </div>
+                            </label>
 
-                        <label class="form-group distance">
-                            <select name="distance" class="form-control control-right">
-                                <option value="10">10 km</option>
-                                <option value="25">25 km</option>
-                                <option value="50">50 km</option>
-                                <option value="100" selected>100 km</option>
-                                <option value="200">200 km</option>
-                                <option value="400">400 km</option>
-                                <option value="800">800 km</option>
-                                <option value="all">&#62; 200 km</option>
-                            </select>
-                        </label>
+                            <label class="form-group distance">
+                                <select name="distance" class="form-control control-right">
+                                    <option value="10">10 km</option>
+                                    <option value="25">25 km</option>
+                                    <option value="50">50 km</option>
+                                    <option value="100" selected>100 km</option>
+                                    <option value="200">200 km</option>
+                                    <option value="400">400 km</option>
+                                    <option value="800">800 km</option>
+                                    <option value="all">&#62; 200 km</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <button class="submit">Search</button>
+                    </form>
+
+
+                    <div class="result-list" id="result-list">
+                        <p class="loading">Loading meetings...</p>
+
+                        <ul class="results"></ul>
+
+                        <div class="pagination">
+
+                            <button class="prev-page">Prev</button>
+                            <button class="next-page">Next</button>
+                        </div>
                     </div>
 
-                    <button class="submit">Search</button>
-                </form>
-
-
-                <div class="result-list" id="result-list">
-                    <p class="loading">Loading meetings...</p>
-
-                    <ul class="results"></ul>
-
-                    <div class="pagination">
-
-                        <button class="prev-page">Prev</button>
-                        <button class="next-page">Next</button>
-                    </div>
                 </div>
 
+                <div id="map"></div>
             </div>
 
-            <div id="map"></div>
-        </div>
+            <section class="about">
+                <h2>About</h2>
+                <p>
+                    We help people that want to recover from addiction or other problem behavior by making information
+                    more accessible. We achieve this by putting all information spread across multiple different
+                    websites on one single page.
+                </p>
 
-        <section>
-            <h2>About</h2>
-        </section>
-    </main>
-</div>
+                <h3>Project info</h3>
+                <p>
+                    This project is free and open-source, you can view the repository on <a
+                        href="https://github.com/NathanKolpa/meeting-finder">GitHub</a>.<br>
+                    For more information on our API, visit the <a id="api-link">documentation</a>.
+                </p>
+            </section>
+        </main>
+    </div>
 
-<div class="modal micromodal-slide" id="meetingModal" aria-hidden="true" hidden="">
-    <div class="overlay" tabindex="-1" data-micromodal-close>
-        <div class="container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
-            <div class="inner-container">
-                <header class="header">
-                    <h2 class="title">
-                        <img class="logo" alt="Logo">
-                        <span class="titleText">[Meeting name]</span>
-                    </h2>
+    <div class="modal micromodal-slide" id="meetingModal" aria-hidden="true" hidden="">
+        <div class="overlay" tabindex="-1" data-micromodal-close>
+            <div class="container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
+                <div class="inner-container">
+                    <header class="header">
+                        <h2 class="title">
+                            <img class="logo" alt="Logo">
+                            <span class="titleText">[Meeting name]</span>
+                        </h2>
 
-                    <button class="close" aria-label="Close modal" data-micromodal-close></button>
-                </header>
+                        <button class="close" aria-label="Close modal" data-micromodal-close></button>
+                    </header>
 
-                <main class="content" id="modal-1-content">
+                    <main class="content" id="modal-1-content">
 
-                    <fieldset>
-                        <legend>General info</legend>
+                        <fieldset>
+                            <legend>General info</legend>
 
-                        <table class="location-info">
-                            <tbody>
-                            <tr class="countryRow">
-                                <td>Country:</td>
-                                <td class="country">[country]</td>
-                            </tr>
-                            <tr class="regionRow">
-                                <td>Region:</td>
-                                <td class="region">[region]</td>
-                            </tr>
-                            <tr>
-                                <td>Time:</td>
-                                <td class="time">[time]</td>
-                            </tr>
+                            <table class="location-info">
+                                <tbody>
+                                    <tr class="countryRow">
+                                        <td>Country:</td>
+                                        <td class="country">[country]</td>
+                                    </tr>
+                                    <tr class="regionRow">
+                                        <td>Region:</td>
+                                        <td class="region">[region]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Time:</td>
+                                        <td class="time">[time]</td>
+                                    </tr>
 
-                            <tr class="emailRow">
-                                <td>Email:</td>
-                                <td><a class="email">[email]</a></td>
-                            </tr>
-                            <tr class="phoneRow">
-                                <td>Phone:</td>
-                                <td><a class="phone">[phone]</a></td>
-                            </tr>
-                            </tbody>
-                        </table>
+                                    <tr class="emailRow">
+                                        <td>Email:</td>
+                                        <td><a class="email">[email]</a></td>
+                                    </tr>
+                                    <tr class="phoneRow">
+                                        <td>Phone:</td>
+                                        <td><a class="phone">[phone]</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
 
-                        <p class="location-notes"></p>
-                    </fieldset>
+                            <p class="location-notes"></p>
+                        </fieldset>
 
-                    <fieldset class="notes-container">
-                        <legend>Notes</legend>
-                        <p class="notes"></p>
-                    </fieldset>
+                        <fieldset class="notes-container">
+                            <legend>Notes</legend>
+                            <p class="notes"></p>
+                        </fieldset>
 
-                    <p class="meta separator">
-                        Last updated at: <span>xxxx-xx-xx</span>
-                        <span class="disclaimer">
-                            Data may be inaccurate, <a target="_blank" class="source">view original</a>
-                        </span>
-                    </p>
-                </main>
+                        <p class="meta separator">
+                            Last updated at: <span>xxxx-xx-xx</span>
+                            <span class="disclaimer">
+                                Data may be inaccurate, <a target="_blank" class="source">view original</a>
+                            </span>
+                        </p>
+                    </main>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 </body>
+
 </html>
