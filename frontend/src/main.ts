@@ -5,6 +5,9 @@ import { fetchMeetings, fetchPositionByQuery } from "./api";
 
 
 document.body.onload = async () => {
+
+    (document.getElementById('api-link') as HTMLAnchorElement).href = import.meta.env.VITE_API_URL;
+
     let [results, map, popup, searchBar] = initialize();
 
     map.setMeetingClickCallback(m => popup.showMeeting(m));

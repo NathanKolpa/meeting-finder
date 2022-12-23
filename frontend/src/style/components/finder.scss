@@ -19,12 +19,12 @@
     height: 100%;
   }
 
-  @include mobilefirst($extra-large-break) {
+  @include mobilefirst($large-break) {
     flex-direction: row;
     height: calc(100vh - $padding * 2);
 
     .search {
-      flex: 4;
+      flex: 5;
     }
 
     #map {
