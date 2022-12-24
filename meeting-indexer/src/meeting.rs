@@ -1,10 +1,11 @@
 use std::str::FromStr;
 use std::time::Duration;
+use chrono::{DateTime, Utc};
 
-use chrono::{NaiveTime};
 use serde::{Serialize};
+use utoipa::ToSchema;
 
-#[derive(Debug, Clone, PartialEq, PartialOrd, Default, Serialize)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Default, Serialize, ToSchema)]
 pub struct Position {
     pub latitude: f64,
     pub longitude: f64,
@@ -19,7 +20,7 @@ impl Position {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct Location {
     pub position: Option<Position>,
     pub location_name: Option<String>,
@@ -29,13 +30,13 @@ pub struct Location {
     pub address: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct Contact {
     pub email: Option<String>,
     pub phone: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 pub enum WeekDay {
     Monday,
     Tuesday,
@@ -73,13 +74,13 @@ impl WeekDay {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 pub enum MeetingTime {
     #[serde(rename = "recurring")]
-    Recurring { day: WeekDay, time: NaiveTime },
+    Recurring { day: WeekDay, hour: i32, minute: i32 },
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, ToSchema)]
 pub enum Organization {
     AnonymousAlcoholics,
     DebtorsAnonymous,
@@ -117,19 +118,20 @@ impl FromStr for Organization {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct OnlineOptions {
     pub online_url: Option<String>,
     pub notes: Option<String>,
     pub is_online: bool,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct Meeting {
     pub name: String,
     pub org: Organization,
     pub notes: Option<String>,
     pub source: String,
+    pub updated_at: DateTime<Utc>,
 
     pub contact: Contact,
     pub location: Location,

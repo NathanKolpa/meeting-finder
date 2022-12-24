@@ -2,6 +2,8 @@
 name = "meeting-indexer"
 version = "0.1.0"
 edition = "2021"
+description = "A REST-Api for querying 12 step meetings"
+license = "GPL-3.0"
 
 [profile.release]
 strip = true
@@ -31,3 +33,6 @@ clap = { version = "4.0.29", features = ["derive"] }
 actix-web = "4"
 actix-cors = "0.6.4"
 env_logger = "0.10.0"
+
+utoipa-swagger-ui = { version = "3.0.1", features = ["actix-web"] }
+utoipa = { version = "2.4.2", features = ["actix_extras", "chrono"] }

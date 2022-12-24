@@ -36,6 +36,5 @@ export interface Meeting {
     formattedTime: string;
     recurring: boolean;
     day: string;
-    time: string;
     durationInSecs: number;
 }

@@ -1,16 +1,14 @@
 use std::{
     path::Path,
-    sync::{Arc, Mutex},
 };
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
-use chrono::NaiveTime;
-use rusqlite::{Connection, named_params, OpenFlags, params, ToSql, Transaction};
+use rusqlite::{Connection, OpenFlags, params, ToSql, Transaction};
 use serde::Serialize;
 use thiserror::Error;
-use tokio::task::spawn_blocking;
+use utoipa::ToSchema;
 
 use crate::meeting::*;
 
@@ -25,7 +23,7 @@ pub struct SearchOptions {
     pub distance: Option<DistanceSearch>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct SearchMeeting {
     pub meeting: Meeting,
     pub distance: Option<f64>,
@@ -47,20 +45,23 @@ impl<'index> MeetingImport<'index> {
         let meeting_count = meetings.len();
 
         for meeting in meetings {
-            let mut meeting_day = None;
-            let mut meeting_time = None;
+            let meeting_day;
+            let meeting_hour;
+            let meeting_minute;
 
             match &meeting.time {
-                MeetingTime::Recurring { day, time } => {
+                MeetingTime::Recurring { day, hour, minute } => {
                     meeting_day = Some(day);
-                    meeting_time = Some(time);
+                    meeting_hour = Some(hour);
+                    meeting_minute = Some(minute);
                 }
             }
 
             self.tx.execute(
-                "INSERT INTO meetings(online, online_notes, source, latitude, longitude, location_name, location_notes, country, region, address, name, notes, org, online_url, phone, email, duration, day, time)
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO meetings(updated_at, online, online_notes, source, latitude, longitude, location_name, location_notes, country, region, address, name, notes, org, online_url, phone, email, duration, day, hour, minute)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 params![
+                    meeting.updated_at,
                     meeting.online_options.is_online,
                     meeting.online_options.notes,
                     meeting.source,
@@ -79,7 +80,8 @@ impl<'index> MeetingImport<'index> {
                     meeting.contact.email,
                     meeting.duration.map(|d| d.as_secs()),
                     meeting_day.map(|day| day.to_day_index()),
-                    meeting_time
+                    meeting_hour,
+                    meeting_minute
                 ])?;
         }
 
@@ -137,6 +139,7 @@ impl MeetingIndex {
             org TEXT NOT NULL,
             notes TEXT NULL,
             source TEXT NOT NULL,
+            updated_at DATETIME NOT NULL,
 
             country TEXT NULL,
             region TEXT NULL,
@@ -155,7 +158,8 @@ impl MeetingIndex {
 
             duration INTEGER NULL,
             day INTEGER NULL,
-            time TEXT NULL
+            hour INTEGER NULL,
+            minute INTEGER NULL
         )",
             params![],
         )?;
@@ -214,6 +218,7 @@ impl MeetingIndex {
                     org: row.get::<_, String>("org")?.parse().unwrap(),
                     notes: row.get("notes")?,
                     source: row.get("source")?,
+                    updated_at: row.get("updated_at")?,
                     contact: Contact {
                         email: row.get("email")?,
                         phone: row.get("phone")?,
@@ -233,7 +238,8 @@ impl MeetingIndex {
                     },
                     time: MeetingTime::Recurring {
                         day: WeekDay::from_day_index(row.get("day")?),
-                        time: row.get::<_, String>("time")?.parse().unwrap(),
+                        hour: row.get("hour")?,
+                        minute: row.get("minute")?,
                     },
                     duration: row.get::<_, Option<u64>>("duration")?.map(|secs| Duration::from_secs(secs)),
                 }

@@ -1,9 +1,7 @@
 use std::collections::HashMap;
-use std::string::ParseError;
 use std::time::Duration;
 
-use chrono::{DateTime, NaiveTime, ParseResult, Utc};
-use clap::builder::Str;
+use chrono::{NaiveTime, Timelike, Utc};
 use select::document::Document;
 use select::predicate::Attr;
 use serde::{Deserialize, Serialize};
@@ -18,7 +16,7 @@ use super::FetchMeetingResult;
 
 struct Metadata {
     nonce: String,
-    meeting_type_map: HashMap<String, String>,
+    _meeting_type_map: HashMap<String, String>,
     endpoint: String,
 }
 
@@ -34,7 +32,7 @@ async fn fetch_metadata(meeting_url: &str) -> Result<Metadata, MeetingFetchError
         .next()
         .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("Cannot find tsml metadata script")))?;
 
-    let mut text = script_element.text();
+    let text = script_element.text();
 
     let json_start_index = text.find('{').ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("cannot find the start of the json text")))?;
     let json_end_index = text.rfind('}').ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("cannot find the end of the json text")))?;
@@ -69,7 +67,7 @@ async fn fetch_metadata(meeting_url: &str) -> Result<Metadata, MeetingFetchError
             .unwrap()
             .to_string(),
 
-        meeting_type_map,
+        _meeting_type_map: meeting_type_map,
     })
 }
 
@@ -226,6 +224,8 @@ impl TryInto<Meeting> for AAMeeting {
 
         // TODO: remove all unwraps
 
+        let time = NaiveTime::parse_from_str(&time, "%H:%M").map_err(|_| ConvertError::ParseError)?;
+
         Ok(Meeting {
             online_options: OnlineOptions {
                 is_online: self.region.as_ref().map(|region| region == "--Online--").unwrap_or(false),
@@ -252,11 +252,13 @@ impl TryInto<Meeting> for AAMeeting {
             },
             time: MeetingTime::Recurring {
                 day: WeekDay::from_day_index(day),
-                time: NaiveTime::parse_from_str(&time, "%H:%M").map_err(|_| ConvertError::ParseError)?,
+                hour: time.hour() as i32,
+                minute: time.minute() as i32,
             },
             notes: self.notes,
             duration: end_time.map(|end_time| (NaiveTime::parse_from_str(&end_time, "%H:%M").unwrap()
-                - NaiveTime::parse_from_str(&time, "%H:%M").unwrap()).to_std().unwrap_or(Duration::from_secs(1))),
+                - time).to_std().unwrap_or(Duration::from_secs(1))),
+            updated_at: Utc::now(),
         })
     }
 }

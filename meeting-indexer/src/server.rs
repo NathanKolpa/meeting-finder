@@ -1,28 +1,33 @@
-use std::error::Error;
 use std::net::IpAddr;
-use std::ops::Deref;
-use std::sync::Arc;
 
 use actix_cors::Cors;
+use actix_web::{
+    App, get, HttpResponse, HttpServer, middleware::Logger, Responder, ResponseError,
+    web,
+};
 use actix_web::body::BoxBody;
 use actix_web::http::StatusCode;
-use actix_web::{
-    get, middleware::Logger, web, App, HttpRequest, HttpResponse, HttpServer, Responder,
-    ResponseError,
-};
 use serde::{Deserialize, Serialize};
+use utoipa::{IntoParams, OpenApi};
+use utoipa_swagger_ui::SwaggerUi;
 
-use crate::index::{DistanceSearch, IndexError, MeetingIndex, SearchOptions};
+use crate::index::*;
+use crate::meeting;
 
 #[derive(Serialize)]
 struct ApiError {
     message: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, IntoParams)]
 struct SearchQuery {
+    /// The longitude of the user.
     longitude: Option<f64>,
+
+    /// The latitude of the user.
     latitude: Option<f64>,
+
+    /// The maximum distance in kilometers.
     distance: Option<f64>,
 }
 
@@ -53,6 +58,12 @@ impl ResponseError for IndexError {
     }
 }
 
+#[utoipa::path(
+    params(SearchQuery),
+    responses(
+        (status = 200, description = "Retrieve a list of meetings", body = [SearchMeeting]))
+    )
+]
 #[get("/meetings")]
 async fn index(
     meeting_index: web::Data<MeetingIndex>,
@@ -64,12 +75,30 @@ async fn index(
     Ok(web::Json(meetings))
 }
 
+#[derive(OpenApi)]
+#[openapi(
+    paths(index),
+    components(schemas(
+        SearchMeeting,
+        meeting::Meeting,
+        meeting::OnlineOptions,
+        meeting::MeetingTime,
+        meeting::WeekDay,
+        meeting::Contact,
+        meeting::Location,
+        meeting::Position,
+        meeting::Organization
+    ))
+)]
+struct ApiDoc;
+
 pub async fn start_server(
     meeting_index: MeetingIndex,
     address: IpAddr,
     port: u16,
 ) -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+    let openapi = ApiDoc::openapi();
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -83,8 +112,12 @@ pub async fn start_server(
             .wrap(cors)
             .app_data(web::Data::new(meeting_index.clone()))
             .service(index)
+
+            .service(
+                SwaggerUi::new("/{_:.*}").url("/openapi.json", openapi.clone()),
+            )
     })
-    .bind((address, port))?
-    .run()
-    .await
+        .bind((address, port))?
+        .run()
+        .await
 }

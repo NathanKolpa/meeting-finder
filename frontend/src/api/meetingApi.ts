@@ -36,8 +36,8 @@ export async function fetchMeetings(opts?: MeetingFetchOptions): Promise<Meeting
         let formattedTime = '';
 
         if (isRecurring) {
-            let timeStr = apiMeeting.time.recurring.time as string;
-            let [hours, minutes, _seconds] = timeStr.split(':')
+            let hours = apiMeeting.time.recurring.hour;
+            let minutes = apiMeeting.time.recurring.minute;
 
             formattedTime = `Every ${apiMeeting.time.recurring.day} at ${hours}:${minutes}`;
 
@@ -67,7 +67,6 @@ export async function fetchMeetings(opts?: MeetingFetchOptions): Promise<Meeting
             onlineUrl: apiMeeting.online_options.online_url,
             distance: searchMeeting.distance,
             source: apiMeeting.source,
-            time: apiMeeting.time.recurring.time,
             durationInSecs: apiMeeting.duration?.secs,
             locationName: apiMeeting.location.location_name,
             onlineNotes: apiMeeting.online_options.notes,
@@ -140,7 +139,8 @@ interface ApiTime {
 
 interface ApiRecurring {
     day: ApiDay;
-    time: string;
+    hour: number;
+    minute: number;
 }
 
 enum ApiDay {
