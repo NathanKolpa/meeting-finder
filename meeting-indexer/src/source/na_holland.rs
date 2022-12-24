@@ -73,7 +73,7 @@ impl TryInto<FetchMeeting> for ApiRecord {
         Ok(FetchMeeting {
             position_query: query,
             meeting: Meeting {
-                name: format!("NA Holland | {}", self.city_name),
+                name: format!("NA Holland | {} {}", self.city_name, self.address),
                 org: Organization::NarcoticsAnonymous,
                 notes: Some(self.details),
                 source: format!("https://www.na-holland.nl/#/meetings/{}", self.id),
