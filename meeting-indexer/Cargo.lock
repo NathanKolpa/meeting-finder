@@ -1124,6 +1124,8 @@ dependencies = [
  "chrono",
  "clap",
  "env_logger",
+ "lazy_static",
+ "regex",
  "reqwest",
  "rusqlite",
  "select",

@@ -1,3 +1,4 @@
+mod na_holland;
 mod wp_sites;
 
 use thiserror::Error;
@@ -17,8 +18,17 @@ pub enum MeetingFetchError {
     JsonParseError(#[from] serde_json::Error),
 }
 
-pub type FetchMeetingResult = Result<Vec<Meeting>, MeetingFetchError>;
+#[derive(Debug)]
+pub struct FetchMeeting {
+    pub meeting: Meeting,
+    pub position_query: Option<String>,
+}
+
+pub type FetchMeetingResult = Result<Vec<FetchMeeting>, MeetingFetchError>;
 
 pub async fn fetch_all_meetings(output: Sender<FetchMeetingResult>) {
-    join!(wp_sites::fetch_meetings(output.clone()));
+    join!(
+        wp_sites::fetch_meetings(output.clone()),
+        na_holland::fetch_meetings(output.clone()),
+    );
 }

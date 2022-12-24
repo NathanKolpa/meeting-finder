@@ -90,6 +90,7 @@ pub enum Organization {
     DebtorsAnonymous,
     CrystalMethAnonymous,
     CodependentsAnonymous,
+    NarcoticsAnonymous,
 }
 
 impl ToString for Organization {
@@ -99,6 +100,7 @@ impl ToString for Organization {
             Organization::DebtorsAnonymous => String::from("DebtorsAnonymous"),
             Organization::CrystalMethAnonymous => String::from("CrystalMethAnonymous"),
             Organization::CodependentsAnonymous => String::from("CodependentsAnonymous"),
+            Organization::NarcoticsAnonymous => String::from("NarcoticsAnonymous"),
         }
     }
 }
@@ -117,6 +119,7 @@ impl FromStr for Organization {
             "DebtorsAnonymous" => Ok(Self::DebtorsAnonymous),
             "CrystalMethAnonymous" => Ok(Self::CrystalMethAnonymous),
             "CodependentsAnonymous" => Ok(Self::CodependentsAnonymous),
+            "NarcoticsAnonymous" => Ok(Self::NarcoticsAnonymous),
             _ => Err(OrganizationParseError::UnknownOrg),
         }
     }

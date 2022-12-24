@@ -96,6 +96,7 @@ export class ResultsList {
                         <li class="distance">[Distance] <span>km</span></li>
                         <li class="country">[Country]</li>
                         <li class="region">[Region]</li>
+                        <li class="address">[Address]</li>
                         <li class="online">[online]</li>
                     </ul>
                     
@@ -115,12 +116,14 @@ export class ResultsList {
         let distance = li.getElementsByClassName('distance')[0]!;
         let time = li.getElementsByClassName('time')[0]!;
         let online = li.getElementsByClassName('online')[0]!;
+        let address = li.getElementsByClassName('address')[0]!;
 
         let focus = li.getElementsByClassName('focus')[0]! as HTMLElement;
         let info = li.getElementsByClassName('info')[0]! as HTMLElement;
 
         setTextOrRemoveIfNull(meeting.name, name);
         setTextOrRemoveIfNull(meeting.country, country);
+        setTextOrRemoveIfNull(meeting.address, address);
         setTextOrRemoveIfNull(meeting.region, region);
         setTextOrRemoveIfNull(meeting.distance ? Math.round(meeting.distance) + ' km' : null, distance);
         setTextOrRemoveIfNull(meeting.formattedTime, time);

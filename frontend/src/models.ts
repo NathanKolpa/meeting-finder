@@ -2,6 +2,7 @@ export type Organization =
     'AnonymousAlcoholics'
     | 'DebtorsAnonymous'
     | 'CrystalMethAnonymous'
+    | 'NarcoticsAnonymous'
     | 'CodependentsAnonymous';
 
 export interface MeetingPosition {

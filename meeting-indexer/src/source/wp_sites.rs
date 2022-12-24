@@ -10,7 +10,7 @@ use tokio::join;
 use tokio::sync::mpsc::Sender;
 
 use crate::meeting::*;
-use crate::source::MeetingFetchError;
+use crate::source::{FetchMeeting, MeetingFetchError};
 
 use super::FetchMeetingResult;
 
@@ -113,8 +113,8 @@ async fn fetch_all_meetings(meetings_url: &str, org: Organization) -> FetchMeeti
     Ok(res
         .into_iter()
         .filter_map(|m| {
-            m.try_into().ok().map(|mut m: Meeting| {
-                m.org = org.clone();
+            m.try_into().ok().map(|mut m: FetchMeeting| {
+                m.meeting.org = org.clone();
                 m
             })
         })
@@ -217,10 +217,10 @@ enum ConvertError {
     ParseError,
 }
 
-impl TryInto<Meeting> for AAMeeting {
+impl TryInto<FetchMeeting> for AAMeeting {
     type Error = ConvertError;
 
-    fn try_into(self) -> Result<Meeting, Self::Error> {
+    fn try_into(self) -> Result<FetchMeeting, Self::Error> {
         let time = self.time.ok_or(ConvertError::MissingField)?;
         let end_time = self.end_time;
 
@@ -252,46 +252,49 @@ impl TryInto<Meeting> for AAMeeting {
         let time =
             NaiveTime::parse_from_str(&time, "%H:%M").map_err(|_| ConvertError::ParseError)?;
 
-        Ok(Meeting {
-            online_options: OnlineOptions {
-                is_online: self
-                    .region
-                    .as_ref()
-                    .map(|region| region == "--Online--")
-                    .unwrap_or(false),
-                online_url: self.conference_url,
-                notes: self.conference_url_notes,
-            },
-            name: self.name,
-            source: self.url,
-            org: Organization::AnonymousAlcoholics,
-            contact: Contact {
-                email: self.email,
-                phone: self.phone,
-            },
-            location: Location {
-                position: Some(Position {
-                    latitude,
-                    longitude,
+        Ok(FetchMeeting {
+            meeting: Meeting {
+                online_options: OnlineOptions {
+                    is_online: self
+                        .region
+                        .as_ref()
+                        .map(|region| region == "--Online--")
+                        .unwrap_or(false),
+                    online_url: self.conference_url,
+                    notes: self.conference_url_notes,
+                },
+                name: self.name,
+                source: self.url,
+                org: Organization::AnonymousAlcoholics,
+                contact: Contact {
+                    email: self.email,
+                    phone: self.phone,
+                },
+                location: Location {
+                    position: Some(Position {
+                        latitude,
+                        longitude,
+                    }),
+                    location_name: self.location,
+                    location_notes: self.location_notes,
+                    country: self.region,
+                    region: self.sub_region,
+                    address: self.formatted_address,
+                },
+                time: MeetingTime::Recurring {
+                    day: WeekDay::from_day_index(day),
+                    hour: time.hour() as i32,
+                    minute: time.minute() as i32,
+                },
+                notes: self.notes,
+                duration: end_time.map(|end_time| {
+                    (NaiveTime::parse_from_str(&end_time, "%H:%M").unwrap() - time)
+                        .to_std()
+                        .unwrap_or(Duration::from_secs(1))
                 }),
-                location_name: self.location,
-                location_notes: self.location_notes,
-                country: self.region,
-                region: self.sub_region,
-                address: self.formatted_address,
+                updated_at: Utc::now(),
             },
-            time: MeetingTime::Recurring {
-                day: WeekDay::from_day_index(day),
-                hour: time.hour() as i32,
-                minute: time.minute() as i32,
-            },
-            notes: self.notes,
-            duration: end_time.map(|end_time| {
-                (NaiveTime::parse_from_str(&end_time, "%H:%M").unwrap() - time)
-                    .to_std()
-                    .unwrap_or(Duration::from_secs(1))
-            }),
-            updated_at: Utc::now(),
+            position_query: None,
         })
     }
 }

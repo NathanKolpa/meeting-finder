@@ -63,7 +63,7 @@ export async function fetchMeetings(opts?: MeetingFetchOptions): Promise<Meeting
             online: apiMeeting.online_options.is_online,
             org: apiMeeting.org,
             address: apiMeeting.location.address,
-            region: apiMeeting.location.address,
+            region: apiMeeting.location.region,
             onlineUrl: apiMeeting.online_options.online_url,
             distance: searchMeeting.distance,
             source: apiMeeting.source,
@@ -133,6 +133,7 @@ enum ApiOrg {
     DebtorsAnonymous = "DebtorsAnonymous",
     CrystalMethAnonymous = "CrystalMethAnonymous",
     CodependentsAnonymous = "CodependentsAnonymous",
+    NarcoticsAnonymous = "NarcoticsAnonymous",
 }
 
 interface ApiTime {

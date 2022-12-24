@@ -10,6 +10,8 @@ export class MeetingDetailsPopup {
     private countryRow: HTMLElement;
     private region: HTMLElement;
     private regionRow: HTMLElement;
+    private address: HTMLElement;
+    private addressRow: HTMLElement;
     private emailRow: HTMLElement;
     private email: HTMLAnchorElement;
     private phoneRow: HTMLElement;
@@ -29,6 +31,8 @@ export class MeetingDetailsPopup {
         this.notes = root.getElementsByClassName('notes').item(0) as HTMLElement;
         this.country = root.getElementsByClassName('country').item(0) as HTMLElement;
         this.countryRow = root.getElementsByClassName('countryRow').item(0) as HTMLElement;
+        this.address = root.getElementsByClassName('address').item(0) as HTMLElement;
+        this.addressRow = root.getElementsByClassName('addressRow').item(0) as HTMLElement;
         this.region = root.getElementsByClassName('region').item(0) as HTMLElement;
         this.regionRow = root.getElementsByClassName('regionRow').item(0) as HTMLElement;
         this.locationInfoTable = root.getElementsByClassName('location-info').item(0) as HTMLElement;
@@ -70,6 +74,14 @@ export class MeetingDetailsPopup {
         }
         else {
             this.regionRow.hidden = true;
+        }
+
+        if (meeting.address) {
+            this.addressRow.hidden = false;
+            this.address.innerText = meeting.address;
+        }
+        else {
+            this.addressRow.hidden = true;
         }
 
         if (meeting.locationNotes) {

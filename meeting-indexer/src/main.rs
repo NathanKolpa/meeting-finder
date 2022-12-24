@@ -4,8 +4,8 @@ use std::error::Error;
 use std::net::IpAddr;
 use std::path::PathBuf;
 
-use crate::meeting::Meeting;
 use crate::server::start_server;
+use crate::source::FetchMeeting;
 use clap::{Parser, Subcommand};
 use source::FetchMeetingResult;
 use tokio::{
@@ -69,24 +69,29 @@ async fn main() -> Result<(), Box<dyn Error>> {
 }
 
 async fn lookup_meeting_positions(
-    meetings: &mut Vec<Meeting>,
+    meetings: &mut Vec<FetchMeeting>,
     position_lookup: &position_lookup::PositionLookup,
 ) {
     for meeting in meetings.iter_mut() {
-        match (&meeting.location.position, &meeting.location.address) {
-            (None, Some(address)) => {
-                let lookup_result = position_lookup.search(address.as_str()).await;
+        match (&meeting.meeting.location.position, &meeting.position_query) {
+            (None, Some(query)) => {
+                let lookup_result = position_lookup.search(query.as_str()).await;
 
                 match lookup_result {
                     Ok(lookup) => {
                         let cache_text = if lookup.cached { " (cached)" } else { "" };
+                        let position_text = if let Some(position) = &lookup.position {
+                            format!("{}, {}", position.longitude, position.latitude)
+                        } else {
+                            String::from("NULL")
+                        };
 
-                        println!("Mapped {address} to {:?}{cache_text}", lookup.position);
+                        println!("Mapped \"{query}\" to {position_text}{cache_text}");
 
-                        meeting.location.position = lookup.position;
+                        meeting.meeting.location.position = lookup.position;
                     }
                     Err(e) => {
-                        eprintln!("Failed to map {address}: {e}");
+                        eprintln!("Failed to map \"{query}\": {e}");
                     }
                 }
             }
@@ -108,7 +113,9 @@ async fn add_meetings_to_index(
                 println!("Found {meeting_count} meetings");
 
                 lookup_meeting_positions(&mut meetings, position_lookup).await;
-                let result = import.add_meetings(meetings).await;
+                let result = import
+                    .add_meetings(meetings.iter().map(|m| &m.meeting))
+                    .await;
 
                 if let Err(e) = result {
                     println!("Failed to add meetings to the staging: {}", e);

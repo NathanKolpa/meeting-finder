@@ -39,8 +39,11 @@ pub struct MeetingImport<'index> {
 }
 
 impl<'index> MeetingImport<'index> {
-    pub async fn add_meetings(&self, meetings: Vec<Meeting>) -> Result<(), IndexError> {
-        let meeting_count = meetings.len();
+    pub async fn add_meetings(
+        &self,
+        meetings: impl Iterator<Item = &Meeting>,
+    ) -> Result<(), IndexError> {
+        let mut meeting_count = 0;
 
         for meeting in meetings {
             let meeting_day;
@@ -81,6 +84,8 @@ impl<'index> MeetingImport<'index> {
                     meeting_hour,
                     meeting_minute
                 ])?;
+
+            meeting_count += 1;
         }
 
         self.total_meetings
