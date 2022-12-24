@@ -114,7 +114,7 @@ pub async fn start_server(
             .service(index)
 
             .service(
-                SwaggerUi::new("/{_:.*}").url("/openapi.json", openapi.clone()),
+                SwaggerUi::new("/{_:.*}").url("openapi.json", openapi.clone()),
             )
     })
         .bind((address, port))?
