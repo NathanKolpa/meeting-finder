@@ -53,7 +53,7 @@ impl TryInto<FetchMeeting> for ApiRecord {
 
     fn try_into(self) -> Result<FetchMeeting, Self::Error> {
         lazy_static! {
-            static ref STREET_REGEX: Regex = Regex::new(r"[a-zA-Z]+[ ]\d+,").unwrap();
+            static ref STREET_REGEX: Regex = Regex::new(r"[a-zA-Z]+[ ]\d+[a-zA-Z]*,").unwrap();
         }
 
         let start_time = NaiveTime::parse_from_str(&self.start, "%H:%M")
@@ -93,7 +93,7 @@ impl TryInto<FetchMeeting> for ApiRecord {
                 online_options: OnlineOptions {
                     online_url: None,
                     notes: None,
-                    is_online: false,
+                    is_online: self.province_name == "ONLINE",
                 },
                 time: MeetingTime::Recurring {
                     day: WeekDay::from_day_index(self.weekday - 1),
