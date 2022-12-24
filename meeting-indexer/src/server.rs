@@ -1,12 +1,11 @@
 use std::net::IpAddr;
 
 use actix_cors::Cors;
-use actix_web::{
-    App, get, HttpResponse, HttpServer, middleware::Logger, Responder, ResponseError,
-    web,
-};
 use actix_web::body::BoxBody;
 use actix_web::http::StatusCode;
+use actix_web::{
+    get, middleware::Logger, web, App, HttpResponse, HttpServer, Responder, ResponseError,
+};
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, OpenApi};
 use utoipa_swagger_ui::SwaggerUi;
@@ -112,12 +111,9 @@ pub async fn start_server(
             .wrap(cors)
             .app_data(web::Data::new(meeting_index.clone()))
             .service(index)
-
-            .service(
-                SwaggerUi::new("/{_:.*}").url("openapi.json", openapi.clone()),
-            )
+            .service(SwaggerUi::new("/{_:.*}").url("openapi.json", openapi.clone()))
     })
-        .bind((address, port))?
-        .run()
-        .await
+    .bind((address, port))?
+    .run()
+    .await
 }

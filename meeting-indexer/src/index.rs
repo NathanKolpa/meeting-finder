@@ -1,11 +1,9 @@
-use std::{
-    path::Path,
-};
+use std::path::Path;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
-use rusqlite::{Connection, OpenFlags, params, ToSql, Transaction};
+use rusqlite::{params, Connection, OpenFlags, ToSql, Transaction};
 use serde::Serialize;
 use thiserror::Error;
 use utoipa::ToSchema;
@@ -85,7 +83,8 @@ impl<'index> MeetingImport<'index> {
                 ])?;
         }
 
-        self.total_meetings.fetch_add(meeting_count, Ordering::Relaxed);
+        self.total_meetings
+            .fetch_add(meeting_count, Ordering::Relaxed);
 
         Ok(())
     }
@@ -129,7 +128,10 @@ impl MeetingIndex {
 
         Self::migrate(&mut conn)?;
 
-        Ok(Self { conn, path: path.to_path_buf() })
+        Ok(Self {
+            conn,
+            path: path.to_path_buf(),
+        })
     }
 
     fn migrate(conn: &mut Connection) -> Result<(), IndexError> {
@@ -174,13 +176,14 @@ impl MeetingIndex {
 
         if opts.distance.is_some() {
             // from https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula
-            query.push_str("(
+            query.push_str(
+                "(
     12742 * ASIN(SQRT(0.5 - COS((latitude - :lat) * 0.017453292519943295) / 2.0
     +  COS(:lat * 0.017453292519943295) * COS(latitude * 0.017453292519943295)
     * (1.0 - COS((longitude - :long) * 0.017453292519943295)) / 2.0))
-) as distance, ")
-        }
-        else {
+) as distance, ",
+            )
+        } else {
             query.push_str("NULL as distance, ");
         }
 
@@ -200,13 +203,11 @@ impl MeetingIndex {
 
         let rows = stmt.query_map(params.as_slice(), |row| {
             let position = match (row.get("latitude")?, row.get("longitude")?) {
-                (Some(latitude), Some(longitude)) => {
-                    Some(Position {
-                        latitude,
-                        longitude,
-                    })
-                }
-                _ => None
+                (Some(latitude), Some(longitude)) => Some(Position {
+                    latitude,
+                    longitude,
+                }),
+                _ => None,
             };
 
             // TODO: handle parse errors
@@ -241,8 +242,10 @@ impl MeetingIndex {
                         hour: row.get("hour")?,
                         minute: row.get("minute")?,
                     },
-                    duration: row.get::<_, Option<u64>>("duration")?.map(|secs| Duration::from_secs(secs)),
-                }
+                    duration: row
+                        .get::<_, Option<u64>>("duration")?
+                        .map(|secs| Duration::from_secs(secs)),
+                },
             })
         })?;
 

@@ -21,48 +21,66 @@ struct Metadata {
 }
 
 async fn fetch_metadata(meeting_url: &str) -> Result<Metadata, MeetingFetchError> {
-    let page_text = reqwest::get(meeting_url)
-        .await?
-        .text()
-        .await?;
+    let page_text = reqwest::get(meeting_url).await?.text().await?;
 
     let document = Document::from(page_text.as_str());
 
-    let script_element = document.find(Attr("id", "tsml_public-js-extra"))
+    let script_element = document
+        .find(Attr("id", "tsml_public-js-extra"))
         .next()
-        .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("Cannot find tsml metadata script")))?;
+        .ok_or_else(|| {
+            MeetingFetchError::UnexpectedResponse(String::from("Cannot find tsml metadata script"))
+        })?;
 
     let text = script_element.text();
 
-    let json_start_index = text.find('{').ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("cannot find the start of the json text")))?;
-    let json_end_index = text.rfind('}').ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("cannot find the end of the json text")))?;
+    let json_start_index = text.find('{').ok_or_else(|| {
+        MeetingFetchError::UnexpectedResponse(String::from(
+            "cannot find the start of the json text",
+        ))
+    })?;
+    let json_end_index = text.rfind('}').ok_or_else(|| {
+        MeetingFetchError::UnexpectedResponse(String::from("cannot find the end of the json text"))
+    })?;
     let json_text = &text[json_start_index..json_end_index + 1];
 
     let json: Value = serde_json::from_str(json_text)?;
 
-    let map = json.get("types")
-        .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("Cannot find 'types' in json")))?
+    let map = json
+        .get("types")
+        .ok_or_else(|| {
+            MeetingFetchError::UnexpectedResponse(String::from("Cannot find 'types' in json"))
+        })?
         .as_object()
-        .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("'types' is not a json object")))?;
+        .ok_or_else(|| {
+            MeetingFetchError::UnexpectedResponse(String::from("'types' is not a json object"))
+        })?;
 
     let mut meeting_type_map = HashMap::new();
 
     for (key, value) in map.iter() {
-        let value = value.as_str()
-            .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("'types.*' is not a string")))?;
+        let value = value.as_str().ok_or_else(|| {
+            MeetingFetchError::UnexpectedResponse(String::from("'types.*' is not a string"))
+        })?;
 
         meeting_type_map.insert(key.clone(), value.to_string());
     }
 
     Ok(Metadata {
-        nonce: json.get("nonce")
-            .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("Cannot find 'nonce' in json")))?
+        nonce: json
+            .get("nonce")
+            .ok_or_else(|| {
+                MeetingFetchError::UnexpectedResponse(String::from("Cannot find 'nonce' in json"))
+            })?
             .as_str()
             .unwrap()
             .to_string(),
 
-        endpoint: json.get("ajaxurl")
-            .ok_or_else(|| MeetingFetchError::UnexpectedResponse(String::from("Cannot find 'ajaxurl' in json")))?
+        endpoint: json
+            .get("ajaxurl")
+            .ok_or_else(|| {
+                MeetingFetchError::UnexpectedResponse(String::from("Cannot find 'ajaxurl' in json"))
+            })?
             .as_str()
             .unwrap()
             .to_string(),
@@ -92,12 +110,15 @@ async fn fetch_all_meetings(meetings_url: &str, org: Organization) -> FetchMeeti
         .json()
         .await?;
 
-    Ok(res.into_iter().filter_map(|m| {
-        m.try_into().ok().map(|mut m: Meeting| {
-            m.org = org.clone();
-            m
+    Ok(res
+        .into_iter()
+        .filter_map(|m| {
+            m.try_into().ok().map(|mut m: Meeting| {
+                m.org = org.clone();
+                m
+            })
         })
-    }).collect())
+        .collect())
 }
 
 async fn fetch_and_send(org: Organization, meetings_url: &str, output: Sender<FetchMeetingResult>) {
@@ -204,11 +225,15 @@ impl TryInto<Meeting> for AAMeeting {
         let end_time = self.end_time;
 
         let day_value = self.day.ok_or(ConvertError::MissingField)?;
-        let mut day: u8 = day_value.as_u64().or_else(|| day_value.as_str().map(|s| s.parse().unwrap()))
+        let mut day: u8 = day_value
+            .as_u64()
+            .or_else(|| day_value.as_str().map(|s| s.parse().unwrap()))
             .ok_or(ConvertError::ParseError)? as u8;
 
         let convert_f64 = |val: Value| -> Result<f64, ConvertError> {
-            Ok(val.as_f64().or_else(|| val.as_str().map(|s| s.parse().unwrap()))
+            Ok(val
+                .as_f64()
+                .or_else(|| val.as_str().map(|s| s.parse().unwrap()))
                 .ok_or(ConvertError::ParseError)?)
         };
 
@@ -224,11 +249,16 @@ impl TryInto<Meeting> for AAMeeting {
 
         // TODO: remove all unwraps
 
-        let time = NaiveTime::parse_from_str(&time, "%H:%M").map_err(|_| ConvertError::ParseError)?;
+        let time =
+            NaiveTime::parse_from_str(&time, "%H:%M").map_err(|_| ConvertError::ParseError)?;
 
         Ok(Meeting {
             online_options: OnlineOptions {
-                is_online: self.region.as_ref().map(|region| region == "--Online--").unwrap_or(false),
+                is_online: self
+                    .region
+                    .as_ref()
+                    .map(|region| region == "--Online--")
+                    .unwrap_or(false),
                 online_url: self.conference_url,
                 notes: self.conference_url_notes,
             },
@@ -256,8 +286,11 @@ impl TryInto<Meeting> for AAMeeting {
                 minute: time.minute() as i32,
             },
             notes: self.notes,
-            duration: end_time.map(|end_time| (NaiveTime::parse_from_str(&end_time, "%H:%M").unwrap()
-                - time).to_std().unwrap_or(Duration::from_secs(1))),
+            duration: end_time.map(|end_time| {
+                (NaiveTime::parse_from_str(&end_time, "%H:%M").unwrap() - time)
+                    .to_std()
+                    .unwrap_or(Duration::from_secs(1))
+            }),
             updated_at: Utc::now(),
         })
     }

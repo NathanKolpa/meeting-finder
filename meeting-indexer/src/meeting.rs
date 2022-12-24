@@ -1,8 +1,8 @@
+use chrono::{DateTime, Utc};
 use std::str::FromStr;
 use std::time::Duration;
-use chrono::{DateTime, Utc};
 
-use serde::{Serialize};
+use serde::Serialize;
 use utoipa::ToSchema;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default, Serialize, ToSchema)]
@@ -44,7 +44,7 @@ pub enum WeekDay {
     Thursday,
     Friday,
     Saturday,
-    Sunday
+    Sunday,
 }
 
 impl WeekDay {
@@ -57,7 +57,7 @@ impl WeekDay {
             4 => Self::Friday,
             5 => Self::Saturday,
             6 => Self::Sunday,
-            _ => panic!("Day must be between 0 and 6")
+            _ => panic!("Day must be between 0 and 6"),
         }
     }
 
@@ -69,7 +69,7 @@ impl WeekDay {
             WeekDay::Thursday => 3,
             WeekDay::Friday => 4,
             WeekDay::Saturday => 5,
-            WeekDay::Sunday => 6
+            WeekDay::Sunday => 6,
         }
     }
 }
@@ -77,7 +77,11 @@ impl WeekDay {
 #[derive(Debug, Clone, Serialize, ToSchema)]
 pub enum MeetingTime {
     #[serde(rename = "recurring")]
-    Recurring { day: WeekDay, hour: i32, minute: i32 },
+    Recurring {
+        day: WeekDay,
+        hour: i32,
+        minute: i32,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, ToSchema)]

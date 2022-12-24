@@ -2,7 +2,9 @@ extern crate core;
 
 use std::error::Error;
 use std::net::IpAddr;
+use std::path::PathBuf;
 
+use crate::meeting::Meeting;
 use crate::server::start_server;
 use clap::{Parser, Subcommand};
 use source::FetchMeetingResult;
@@ -13,6 +15,7 @@ use tokio::{
 
 pub mod index;
 pub mod meeting;
+pub mod position_lookup;
 pub mod server;
 pub mod source;
 
@@ -34,10 +37,8 @@ enum Commands {
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
-    /// The database file used for caching and querying.
-    /// A new database file will be created if it doesn't exist.
-    #[arg(short, long, value_name = "FILE")]
-    db: String,
+    #[arg(short, long, value_name = "DIR", default_value_t = String::from("/usr/share/meeting-indexer"))]
+    data_dir: String,
 
     #[command(subcommand)]
     command: Commands,
@@ -47,11 +48,17 @@ struct Cli {
 async fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
 
-    let mut index = index::MeetingIndex::open(&std::path::PathBuf::from(cli.db))?;
+    let data_path = PathBuf::from(cli.data_dir);
+    let meeting_db_path = data_path.join("meetings.db");
+
+    let mut index = index::MeetingIndex::open(&meeting_db_path)?;
 
     match cli.command {
         Commands::Sync => {
-            sync_index(&mut index).await?;
+            let position_db_path = data_path.join("positions.db");
+            let position_lookup = position_lookup::PositionLookup::open(&position_db_path)?;
+
+            sync_index(&mut index, &position_lookup).await?;
         }
         Commands::Serve { port, address } => {
             start_server(index, address, port).await?;
@@ -61,15 +68,46 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+async fn lookup_meeting_positions(
+    meetings: &mut Vec<Meeting>,
+    position_lookup: &position_lookup::PositionLookup,
+) {
+    for meeting in meetings.iter_mut() {
+        match (&meeting.location.position, &meeting.location.address) {
+            (None, Some(address)) => {
+                let lookup_result = position_lookup.search(address.as_str()).await;
+
+                match lookup_result {
+                    Ok(lookup) => {
+                        let cache_text = if lookup.cached { " (cached)" } else { "" };
+
+                        println!("Mapped {address} to {:?}{cache_text}", lookup.position);
+
+                        meeting.location.position = lookup.position;
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to map {address}: {e}");
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
 async fn add_meetings_to_index(
     mut rx: Receiver<FetchMeetingResult>,
     import: &mut index::MeetingImport<'_>,
+    position_lookup: &position_lookup::PositionLookup,
 ) {
     while let Some(result) = rx.recv().await {
         match result {
             Err(e) => eprintln!("Failed to fetch meetings: {}", e),
-            Ok(meetings) => {
+            Ok(mut meetings) => {
                 let meeting_count = meetings.len();
+                println!("Found {meeting_count} meetings");
+
+                lookup_meeting_positions(&mut meetings, position_lookup).await;
                 let result = import.add_meetings(meetings).await;
 
                 if let Err(e) = result {
@@ -82,14 +120,17 @@ async fn add_meetings_to_index(
     }
 }
 
-async fn sync_index(index: &mut index::MeetingIndex) -> Result<(), index::IndexError> {
+async fn sync_index(
+    index: &mut index::MeetingIndex,
+    position_lookup: &position_lookup::PositionLookup,
+) -> Result<(), index::IndexError> {
     let mut import = index.start_import().await?;
     import.remove_old_meetings().await?;
 
     let (tx, rx) = channel(1024);
     join!(
         source::fetch_all_meetings(tx),
-        add_meetings_to_index(rx, &mut import)
+        add_meetings_to_index(rx, &mut import, position_lookup)
     );
 
     let meeting_count = import.meetings_added();
