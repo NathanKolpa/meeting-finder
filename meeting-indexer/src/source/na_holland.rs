@@ -82,6 +82,11 @@ impl TryInto<FetchMeeting> for ApiRecord {
                     email: None,
                     phone: None,
                 },
+                online_options: OnlineOptions {
+                    online_url: None,
+                    notes: None,
+                    is_online: self.province_name == "ONLINE",
+                },
                 location: Location {
                     position: None,
                     location_name: None,
@@ -89,11 +94,6 @@ impl TryInto<FetchMeeting> for ApiRecord {
                     country: Some(String::from("Nederland")),
                     region: Some(self.province_name),
                     address: Some(self.address),
-                },
-                online_options: OnlineOptions {
-                    online_url: None,
-                    notes: None,
-                    is_online: self.province_name == "ONLINE",
                 },
                 time: MeetingTime::Recurring {
                     day: WeekDay::from_day_index(self.weekday - 1),
