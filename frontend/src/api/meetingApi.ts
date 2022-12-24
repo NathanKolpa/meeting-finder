@@ -74,7 +74,8 @@ export async function fetchMeetings(opts?: MeetingFetchOptions): Promise<Meeting
             email: apiMeeting.contact.email,
             phone: apiMeeting.contact.phone,
             recurring: isRecurring,
-            formattedTime
+            formattedTime,
+            updatedAt: new Date(apiMeeting.updated_at)
         };
     })
 }
@@ -94,6 +95,7 @@ interface ApiMeeting {
     online_options: ApiOnlineOptions;
     time: ApiTime;
     duration: ApiDuration;
+    updated_at: string;
 }
 
 interface ApiContact {

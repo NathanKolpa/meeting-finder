@@ -17,6 +17,7 @@ export class MeetingDetailsPopup {
     private locationInfoTable: HTMLElement;
     private locationNotes: HTMLElement;
     private notesContainer: HTMLElement;
+    private updatedAt: HTMLElement;
     private time: HTMLElement;
     private source: HTMLAnchorElement;
 
@@ -38,6 +39,7 @@ export class MeetingDetailsPopup {
         this.phone = root.getElementsByClassName('phone').item(0) as HTMLAnchorElement;
         this.phoneRow = root.getElementsByClassName('phoneRow').item(0) as HTMLElement;
         this.time = root.getElementsByClassName('time').item(0) as HTMLElement;
+        this.updatedAt = root.getElementsByClassName('updated-at').item(0) as HTMLElement;
         this.notesContainer = root.getElementsByClassName('notes-container').item(0) as HTMLElement;
     }
 
@@ -99,6 +101,7 @@ export class MeetingDetailsPopup {
         this.time.innerText = meeting.formattedTime;
         this.source.href = meeting.source;
         this.source.title = meeting.source;
+        this.updatedAt.innerText = meeting.updatedAt.toLocaleString();
 
         this.logo.src = getLogoImgUrlByOrg(meeting.org);
 

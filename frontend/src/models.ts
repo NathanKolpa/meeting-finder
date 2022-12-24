@@ -37,4 +37,5 @@ export interface Meeting {
     recurring: boolean;
     day: string;
     durationInSecs: number;
+    updatedAt: Date;
 }
