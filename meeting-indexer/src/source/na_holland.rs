@@ -83,14 +83,14 @@ impl TryInto<FetchMeeting> for ApiRecord {
                     phone: None,
                 },
                 online_options: OnlineOptions {
-                    online_url: None,
+                    url: None,
                     notes: None,
                     is_online: self.province_name == "ONLINE",
                 },
                 location: Location {
                     position: None,
-                    location_name: None,
-                    location_notes: None,
+                    name: None,
+                    notes: None,
                     country: Some(String::from("Nederland")),
                     region: Some(self.province_name),
                     address: Some(self.address),

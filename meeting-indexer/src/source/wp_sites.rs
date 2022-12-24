@@ -260,7 +260,7 @@ impl TryInto<FetchMeeting> for AAMeeting {
                         .as_ref()
                         .map(|region| region == "--Online--")
                         .unwrap_or(false),
-                    online_url: self.conference_url,
+                    url: self.conference_url,
                     notes: self.conference_url_notes,
                 },
                 name: self.name,
@@ -275,8 +275,8 @@ impl TryInto<FetchMeeting> for AAMeeting {
                         latitude,
                         longitude,
                     }),
-                    location_name: self.location,
-                    location_notes: self.location_notes,
+                    name: self.location,
+                    notes: self.location_notes,
                     country: self.region,
                     region: self.sub_region,
                     address: self.formatted_address,

@@ -64,13 +64,13 @@ export async function fetchMeetings(opts?: MeetingFetchOptions): Promise<Meeting
             org: apiMeeting.org,
             address: apiMeeting.location.address,
             region: apiMeeting.location.region,
-            onlineUrl: apiMeeting.online_options.online_url,
+            onlineUrl: apiMeeting.online_options.url,
             distance: searchMeeting.distance,
             source: apiMeeting.source,
             durationInSecs: apiMeeting.duration?.secs,
-            locationName: apiMeeting.location.location_name,
+            locationName: apiMeeting.location.name,
             onlineNotes: apiMeeting.online_options.notes,
-            locationNotes: apiMeeting.location.location_notes,
+            locationNotes: apiMeeting.location.notes,
             email: apiMeeting.contact.email,
             phone: apiMeeting.contact.phone,
             recurring: isRecurring,
@@ -110,8 +110,8 @@ interface ApiDuration {
 
 interface ApiLocation {
     position: ApiPosition | null;
-    location_name: null | string;
-    location_notes: null | string;
+    name: null | string;
+    notes: null | string;
     country: null | string;
     region: null | string;
     address: string;
@@ -123,7 +123,7 @@ interface ApiPosition {
 }
 
 interface ApiOnlineOptions {
-    online_url: null | string;
+    url: null | string;
     notes: null | string;
     is_online: boolean;
 }

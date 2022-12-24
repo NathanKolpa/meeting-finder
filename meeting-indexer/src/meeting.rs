@@ -23,8 +23,8 @@ impl Position {
 #[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct Location {
     pub position: Option<Position>,
-    pub location_name: Option<String>,
-    pub location_notes: Option<String>,
+    pub name: Option<String>,
+    pub notes: Option<String>,
     pub country: Option<String>,
     pub region: Option<String>,
     pub address: Option<String>,
@@ -127,7 +127,7 @@ impl FromStr for Organization {
 
 #[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct OnlineOptions {
-    pub online_url: Option<String>,
+    pub url: Option<String>,
     pub notes: Option<String>,
     pub is_online: bool,
 }
