@@ -12,9 +12,9 @@ import {
     tileLayer
 } from "leaflet";
 import 'leaflet.markercluster';
-import { Meeting, MeetingPosition, Organization } from "../models";
-import { getLogoImgUrlByOrg } from "./logo";
-import { MeetingCallback } from "./callback";
+import {Meeting, MeetingPosition, Organization} from "../models";
+import {getLogoImgUrlByOrg} from "./logo";
+import {MeetingCallback} from "./callback";
 
 interface MapMeetingActions {
     remove: () => void,
@@ -73,7 +73,7 @@ export class MeetingMap {
                     html.appendChild(container);
                 }
 
-                return new DivIcon({ html });
+                return new DivIcon({html});
             }
         });
 
@@ -81,7 +81,7 @@ export class MeetingMap {
             zoomControl: true,
             zoom: 2,
             minZoom: 2,
-            center: { lng: 0, lat: 0 },
+            center: {lng: 0, lat: 0},
             layers: [mapLayer, this.cluster],
         });
     }
@@ -123,12 +123,16 @@ export class MeetingMap {
         return sampleMarkers;
     }
 
-    public addMeetings(meetings: Meeting[]) {
-        meetings = [...meetings];
+    private addMeetingTimeout: any;
+    private markersToAdd: Marker[] = [];
 
+    public addMeetings(meetings: Meeting[]) {
         for (const meeting of meetings) {
             this.addMeeting(meeting);
         }
+
+        this.cluster.addLayers(this.markersToAdd);
+        this.markersToAdd = [];
     }
 
     public addMeeting(meeting: Meeting) {
@@ -159,11 +163,11 @@ export class MeetingMap {
             },
         };
 
-        this.cluster.addLayer(meetingMarker);
+        this.markersToAdd.push(meetingMarker);
     }
 
     public focus(meeting: Meeting) {
-        document.scrollingElement?.scroll({ top: 0 });
+        document.scrollingElement?.scroll({top: 0});
         this.actions[meeting.id]?.focus();
     }
 
@@ -172,6 +176,7 @@ export class MeetingMap {
     }
 
     public clear() {
+        clearTimeout(this.addMeetingTimeout);
         this.cluster.clearLayers();
         this.actions = {};
     }
