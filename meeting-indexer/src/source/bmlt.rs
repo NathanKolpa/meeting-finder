@@ -2,9 +2,7 @@ use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike, Utc};
 use futures_util::future::join_all;
-use reqwest::get;
 use serde::Deserialize;
-use tokio::join;
 use tokio::sync::mpsc::Sender;
 
 use crate::meeting::*;
@@ -36,7 +34,7 @@ async fn fetch_from_all_servers(
     output: Sender<FetchMeetingResult>,
 ) -> Result<(), MeetingFetchError> {
     let servers: Vec<BmltServer> =
-        get("https://tomato.bmltenabled.org/main_server/api/v1/rootservers/")
+        reqwest::get("https://tomato.bmltenabled.org/main_server/api/v1/rootservers/")
             .await?
             .json()
             .await?;
@@ -165,7 +163,7 @@ impl TryInto<FetchMeeting> for ApiMeeting {
                 } else {
                     Some(self.comments)
                 },
-                source: self.root_server_uri,
+                source: self.root_server_uri.trim_end_matches("/").trim_end_matches("/main_server").to_string(),
                 updated_at: Utc::now(),
                 contact: Contact { email, phone },
                 location: Location {
