@@ -1,5 +1,6 @@
 mod na_holland;
 mod wp_sites;
+mod bmlt;
 
 use thiserror::Error;
 use tokio::{join, sync::mpsc::Sender};
@@ -30,5 +31,6 @@ pub async fn fetch_all_meetings(output: Sender<FetchMeetingResult>) {
     join!(
         wp_sites::fetch_meetings(output.clone()),
         na_holland::fetch_meetings(output.clone()),
+        bmlt::fetch_meetings(output.clone()),
     );
 }

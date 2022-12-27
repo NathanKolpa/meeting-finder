@@ -12,6 +12,7 @@ strip = true
 
 # Basic utilities
 tokio = { version = "1.23.0", features = ["full"] }
+futures-util = "0.3.25"
 chrono = { version = "0.4.23", features = ["serde"] }
 thiserror = "1.0.37"
 regex = "1.7.0"
