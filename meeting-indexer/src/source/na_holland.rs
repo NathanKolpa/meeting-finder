@@ -1,4 +1,4 @@
-use crate::meeting::*;
+use common::model::*;
 use crate::source::{FetchMeeting, FetchMeetingResult};
 use chrono::{NaiveTime, Timelike, Utc};
 use lazy_static::lazy_static;

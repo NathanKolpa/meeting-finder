@@ -2,5 +2,6 @@
 
 members = [
     "meeting-indexer",
+    "common"
 ]
 

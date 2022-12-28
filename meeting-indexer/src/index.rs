@@ -8,7 +8,7 @@ use serde::Serialize;
 use thiserror::Error;
 use utoipa::ToSchema;
 
-use crate::meeting::*;
+use common::model::*;
 
 pub struct DistanceSearch {
     pub latitude: f64,

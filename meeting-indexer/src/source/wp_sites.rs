@@ -9,7 +9,7 @@ use serde_json::Value;
 use tokio::join;
 use tokio::sync::mpsc::Sender;
 
-use crate::meeting::*;
+use common::model::*;
 use crate::source::{FetchMeeting, MeetingFetchError};
 
 use super::FetchMeetingResult;

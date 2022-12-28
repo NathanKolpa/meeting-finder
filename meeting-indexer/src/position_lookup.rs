@@ -1,4 +1,4 @@
-use crate::meeting::Position;
+use common::model::Position;
 use chrono::Utc;
 use rusqlite::{params, Connection, OpenFlags};
 use serde::Deserialize;

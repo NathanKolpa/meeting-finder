@@ -1,7 +1,6 @@
 extern crate core;
 
 use std::error::Error;
-use std::net::IpAddr;
 use std::path::PathBuf;
 
 use crate::server::start_server;
@@ -14,7 +13,6 @@ use tokio::{
 };
 
 pub mod index;
-pub mod meeting;
 pub mod position_lookup;
 pub mod server;
 pub mod source;
@@ -29,8 +27,8 @@ enum Commands {
         #[arg(short, long, default_value_t = 8080)]
         port: u16,
 
-        #[arg(short, long)]
-        address: IpAddr,
+        #[arg(short, long, default_value_t = String::from("0.0.0.0"))]
+        address: String,
     },
 }
 
@@ -61,7 +59,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             sync_index(&mut index, &position_lookup).await?;
         }
         Commands::Serve { port, address } => {
-            start_server(index, address, port).await?;
+            start_server(index, address.parse()?, port).await?;
         }
     }
 

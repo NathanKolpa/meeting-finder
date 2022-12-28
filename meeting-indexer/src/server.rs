@@ -11,7 +11,7 @@ use utoipa::{IntoParams, OpenApi};
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::index::*;
-use crate::meeting;
+use common::model;
 
 #[derive(Serialize)]
 struct ApiError {
@@ -79,14 +79,14 @@ async fn index(
     paths(index),
     components(schemas(
         SearchMeeting,
-        meeting::Meeting,
-        meeting::OnlineOptions,
-        meeting::MeetingTime,
-        meeting::WeekDay,
-        meeting::Contact,
-        meeting::Location,
-        meeting::Position,
-        meeting::Organization
+        model::Meeting,
+        model::OnlineOptions,
+        model::MeetingTime,
+        model::WeekDay,
+        model::Contact,
+        model::Location,
+        model::Position,
+        model::Organization
     ))
 )]
 struct ApiDoc;

@@ -5,7 +5,7 @@ use futures_util::future::join_all;
 use serde::Deserialize;
 use tokio::sync::mpsc::Sender;
 
-use crate::meeting::*;
+use common::model::*;
 use crate::source::{FetchMeeting, FetchMeetingResult, MeetingFetchError};
 
 async fn fetch_all_meetings(api_url: &str) -> FetchMeetingResult {

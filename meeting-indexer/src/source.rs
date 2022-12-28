@@ -5,7 +5,7 @@ mod bmlt;
 use thiserror::Error;
 use tokio::{join, sync::mpsc::Sender};
 
-use crate::meeting::Meeting;
+use common::model::Meeting;
 
 #[derive(Error, Debug)]
 pub enum MeetingFetchError {

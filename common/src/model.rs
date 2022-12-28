@@ -2,10 +2,15 @@ use chrono::{DateTime, Utc};
 use std::str::FromStr;
 use std::time::Duration;
 
+#[cfg(feature = "serde")]
 use serde::Serialize;
+
+#[cfg(feature = "utoipa")]
 use utoipa::ToSchema;
 
-#[derive(Debug, Clone, PartialEq, PartialOrd, Default, Serialize, ToSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "utoipa", derive(ToSchema))]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
 pub struct Position {
     pub latitude: f64,
     pub longitude: f64,
@@ -20,7 +25,9 @@ impl Position {
     }
 }
 
-#[derive(Debug, Clone, Serialize, ToSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "utoipa", derive(ToSchema))]
+#[derive(Debug, Clone)]
 pub struct Location {
     pub position: Option<Position>,
     pub name: Option<String>,
@@ -30,13 +37,18 @@ pub struct Location {
     pub address: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, ToSchema)]
+
+#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "utoipa", derive(ToSchema))]
+#[derive(Debug, Clone)]
 pub struct Contact {
     pub email: Option<String>,
     pub phone: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, ToSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "utoipa", derive(ToSchema))]
+#[derive(Debug, Clone)]
 pub enum WeekDay {
     Monday,
     Tuesday,
@@ -74,7 +86,9 @@ impl WeekDay {
     }
 }
 
-#[derive(Debug, Clone, Serialize, ToSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "utoipa", derive(ToSchema))]
+#[derive(Debug, Clone)]
 pub enum MeetingTime {
     #[serde(rename = "recurring")]
     Recurring {
@@ -84,7 +98,9 @@ pub enum MeetingTime {
     },
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, ToSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "utoipa", derive(ToSchema))]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Organization {
     AnonymousAlcoholics,
     DebtorsAnonymous,
@@ -125,14 +141,18 @@ impl FromStr for Organization {
     }
 }
 
-#[derive(Debug, Clone, Serialize, ToSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "utoipa", derive(ToSchema))]
+#[derive(Debug, Clone)]
 pub struct OnlineOptions {
     pub url: Option<String>,
     pub notes: Option<String>,
     pub is_online: bool,
 }
 
-#[derive(Debug, Clone, Serialize, ToSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "utoipa", derive(ToSchema))]
+#[derive(Debug, Clone)]
 pub struct Meeting {
     pub name: String,
     pub org: Organization,
