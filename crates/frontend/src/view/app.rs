@@ -1,26 +1,17 @@
 use yew::prelude::*;
 
-use crate::view::about::About;
+use crate::view::components::About;
+use crate::view::hooks::use_config;
 
-#[derive(Default)]
-pub struct App {}
+#[function_component(App)]
+pub fn app() -> Html {
+    let config = use_config();
 
-impl Component for App {
-    type Message = ();
-    type Properties = ();
-
-    fn create(_ctx: &Context<Self>) -> Self {
-        Self::default()
-    }
-
-
-    fn view(&self, _ctx: &Context<Self>) -> Html {
-        html! {
-            <div class="app">
-                <main>
-                    <About />
-                </main>
-            </div>
-        }
+    html! {
+        <div class="app">
+            <main>
+                <About api_link={config.api_url()} />
+            </main>
+        </div>
     }
 }
