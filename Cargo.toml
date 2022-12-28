@@ -1,7 +1,7 @@
 [workspace]
 
 members = [
-    "meeting-indexer",
-    "common"
+    "crates/meeting-indexer",
+    "crates/common"
 ]
 
