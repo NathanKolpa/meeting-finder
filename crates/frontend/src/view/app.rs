@@ -12,6 +12,8 @@ pub fn app() -> Html {
             <main>
                 <div class="meeting-finder">
                     <div class="search">
+                        <h1>{"Find meetings in your area."}</h1>
+                        <Search />
                         <MeetingList is_loading={true} />
                     </div>
                     <WorldMap />
