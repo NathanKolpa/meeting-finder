@@ -1,8 +1,9 @@
 use yew::prelude::*;
 
+use crate::view::about::About;
+
 #[derive(Default)]
-pub struct App {
-}
+pub struct App {}
 
 impl Component for App {
     type Message = ();
@@ -17,6 +18,7 @@ impl Component for App {
         html! {
             <div class="app">
                 <main>
+                    <About />
                 </main>
             </div>
         }
