@@ -158,10 +158,10 @@ impl TryInto<FetchMeeting> for ApiMeeting {
             meeting: Meeting {
                 name: self.meeting_name,
                 org: Organization::NarcoticsAnonymous,
-                notes: if self.comments.is_empty() {
-                    None
-                } else {
+                notes: if !self.comments.is_empty() {
                     Some(self.comments)
+                } else {
+                    None
                 },
                 source: self.root_server_uri.trim_end_matches("/").trim_end_matches("/main_server").to_string(),
                 updated_at: Utc::now(),
@@ -181,7 +181,7 @@ impl TryInto<FetchMeeting> for ApiMeeting {
                     } else {
                         Some(self.location_info)
                     },
-                    country: Some(String::from("United States")),
+                    country: None,
                     region: Some(self.location_province),
                     address: if !self.location_street.is_empty() {
                         Some(self.location_street)
@@ -190,15 +190,15 @@ impl TryInto<FetchMeeting> for ApiMeeting {
                     },
                 },
                 online_options: OnlineOptions {
-                    url: if self.virtual_meeting_link.is_empty() || !is_online {
-                        None
-                    } else {
+                    url: if !self.virtual_meeting_link.is_empty() {
                         Some(self.virtual_meeting_link)
-                    },
-                    notes: if self.phone_meeting_number.is_empty() {
-                        None
                     } else {
+                        None
+                    },
+                    notes: if !self.phone_meeting_number.is_empty() {
                         Some(self.phone_meeting_number)
+                    } else {
+                        None
                     },
                     is_online,
                 },
