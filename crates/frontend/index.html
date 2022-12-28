@@ -1,7 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <title>Yew App</title>
+    <base data-trunk-public-url/>
+
+    <link data-trunk rel="copy-file" href="public/robots.txt">
+    <link data-trunk rel="copy-file" href="public/fonts/OpenSans.ttf">
+
+    <!--    styling-->
+    <link data-trunk rel="css" href="node_modules/normalize.css/normalize.css"/>
+    <link data-trunk rel="css" href="node_modules/leaflet/dist/leaflet.css"/>
+    <link data-trunk rel="css" href="node_modules/leaflet.markercluster/dist/MarkerCluster.css"/>
+    <link data-trunk rel="css" href="node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
+
+    <!--    scripts-->
+    <link data-trunk rel="inline" type="js" href="node_modules/leaflet/dist/leaflet.js">
+    <link data-trunk rel="inline" type="js" href="node_modules/leaflet.markercluster/dist/leaflet.markercluster.js">
+
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7BHG371B7Z"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+        gtag('config', 'G-7BHG371B7Z');
+    </script>
+
+    <link data-trunk rel="sass" href="style/main.scss"/>
+    <link data-trunk rel="rust" data-wasm-opt="z" href="Cargo.toml" data-bin="frontend"/>
 </head>
+
+<body>
+</body>
 </html>

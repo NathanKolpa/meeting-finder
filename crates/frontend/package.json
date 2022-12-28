@@ -1,0 +1,10 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "leaflet": "^1.9.3",
+    "leaflet.markercluster": "^1.5.3",
+    "normalize.css": "^8.0.1"
+  }
+}

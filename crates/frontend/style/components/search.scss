@@ -1,0 +1,67 @@
+.filters {
+  display: flex;
+  flex-direction: column;
+
+  @include mobilefirst($medium-break) {
+    flex-direction: unset;
+    align-items: stretch;
+    align-content: stretch;
+  }
+
+  & > * {
+    flex: 1;
+  }
+
+  .submit {
+    max-width: 100px;
+    margin-top: 25px; // account for feedback
+
+    @include mobilefirst($medium-break) {
+      margin-top: 0;
+      margin-left: $padding;
+    }
+  }
+
+  .input-fields {
+    display: flex;
+    align-content: space-evenly;
+  }
+
+  .control-left {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .control-right {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+  }
+
+
+  .distance {
+    max-width: 100px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group,
+  .form-control {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .location-feedback {
+    color: $red;
+  }
+}
+
+.absolute-container {
+  position: relative;
+}
+
+.absolute-inner {
+  position: absolute;
+}

@@ -1,0 +1,20 @@
+.meeting-cluster {
+  display: flex;
+
+  .icon-container {
+    width: 5px;
+    height: 50px;
+
+    .icon {
+
+      width: 50px;
+      height: 50px;
+    }
+
+  }
+}
+
+.leaflet-div-icon {
+  background: none !important;
+  border: none !important;
+}

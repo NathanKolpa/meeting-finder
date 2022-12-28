@@ -1,0 +1,43 @@
+$small-break: 576px;
+$medium-break: 768px;
+$large-break: 992px;
+$extra-large-break: 1200px;
+
+$border-radius: 7px;
+$button-border-radius: $border-radius;
+$padding: 10px;
+$shadow: rgba(0, 0, 0, 0.24) 0 3px 8px;
+
+@font-face {
+  font-family: 'OpenSans';
+  font-style: normal;
+  src: url(/OpenSans.ttf)
+}
+
+$fonts: "OpenSans", sans-serif;
+$font-size: 100%;
+$line-height: 44px;
+
+// https://clrs.cc/
+$aqua: #7fdbff;
+$blue: #0074d9;
+$navy: #001f3f;
+$teal: #39cccc;
+$green: #2ecc40;
+$olive: #3d9970;
+$lime: #01ff70;
+$yellow: #ffdc00;
+$orange: #ff851b;
+$red: #ff4136;
+$fuchsia: #f012be;
+$purple: #b10dc9;
+$maroon: #85144b;
+$white: #fff;
+$silver: #ddd;
+$grey: #aaa;
+$black: #111;
+
+$primary-color: #2f39d3;
+$secondary-color: $grey;
+
+$background-color: #f9f9f9;
