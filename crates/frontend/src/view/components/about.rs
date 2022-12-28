@@ -27,7 +27,7 @@ pub fn about(props: &Props) -> Html {
             <p>
                 {"This project is free and open-source, you can view the repository on "}<a href="https://github.com/NathanKolpa/meeting-finder">{"Github"}</a>{"."}
                 <br />
-                {"For more information on our API, visit the documentation."}
+                {"For more information on our API, visit the "}
                 <a href={&props.api_link}>{"documentation"}</a>
                 {"."}
             </p>
