@@ -8,8 +8,8 @@ use crate::view::components::world_map::leaflet::{log, MapPoint};
 
 mod leaflet {
     use serde::{Deserialize, Serialize};
-    use wasm_bindgen::{JsObject, JsValue};
     use wasm_bindgen::prelude::*;
+    use wasm_bindgen::{JsObject, JsValue};
     use web_sys::{Element, HtmlElement, Node};
 
     #[derive(Serialize, Deserialize)]
@@ -87,10 +87,7 @@ impl Component for WorldMap {
             zoom: 2.0,
             min_zoom: 2.0,
             zoom_control: true,
-            center: MapPoint {
-                lat: 0.0,
-                lng: 0.0,
-            },
+            center: MapPoint { lat: 0.0, lng: 0.0 },
         };
 
         let map = leaflet::map(&container, &serde_wasm_bindgen::to_value(&options).unwrap());
@@ -108,21 +105,18 @@ impl Component for WorldMap {
 
         layer.addTo(&map);
 
-        Self {
-            container,
-            map,
+        Self { container, map }
+    }
+
+    fn view(&self, _ctx: &Context<Self>) -> Html {
+        html! {
+            {self.render_map()}
         }
     }
 
     fn rendered(&mut self, _ctx: &Context<Self>, first_render: bool) {
         if first_render {
             self.map.invalidateSize(false);
-        }
-    }
-
-    fn view(&self, _ctx: &Context<Self>) -> Html {
-        html! {
-            {self.render_map()}
         }
     }
 }

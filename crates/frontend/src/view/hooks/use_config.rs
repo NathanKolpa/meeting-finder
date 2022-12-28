@@ -14,6 +14,6 @@ impl UseConfigHandle {
 #[hook]
 pub fn use_config() -> UseConfigHandle {
     UseConfigHandle {
-        api_url: env!("API_URL")
+        api_url: env!("API_URL"),
     }
 }
