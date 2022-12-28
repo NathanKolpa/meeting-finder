@@ -721,6 +721,7 @@ version = "0.1.0"
 dependencies = [
  "common",
  "gloo-utils",
+ "js-sys",
  "reqwest",
  "serde",
  "serde-wasm-bindgen 0.4.5",

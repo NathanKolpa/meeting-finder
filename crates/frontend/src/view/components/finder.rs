@@ -42,7 +42,7 @@ pub fn finder() -> Html {
                     <Spinner />
                 }
             </div>
-            <WorldMap />
+            <WorldMap meetings={meetings.data.clone()} />
         </div>
     }
 }
