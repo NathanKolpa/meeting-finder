@@ -15,7 +15,7 @@
     }
   }
 
-  #map {
+  .map {
     min-height: 80vh;
     height: 100%;
   }
@@ -28,7 +28,7 @@
       flex: 5;
     }
 
-    #map {
+    .map {
       flex: 8;
       min-height: unset;
     }

@@ -1,5 +1,9 @@
+#![feature(extern_types)]
+
+use view::App;
+
 mod view;
 
 fn main() {
-    yew::Renderer::<view::App>::new().render();
+    yew::Renderer::<App>::new().render();
 }
