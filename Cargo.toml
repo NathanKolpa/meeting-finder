@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "meeting-indexer",
+]
+
