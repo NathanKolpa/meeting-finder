@@ -1,12 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <title>Yew App</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <meta name="description"
+          content="Find and filter 12-step meetings in your area. Our comprehensive and convenient directory makes it easy to find the support and fellowship you need in recovery, no matter where you are. Whether you're new to recovery or have been in the program for a while, we're here to help you connect with others in the recovery community and stay on track.">
+
+    <meta name="keywords"
+          content="12 step meetings, Recovery, Meetings, Interactive map, Addiction, 12 step programs, Alcoholics Anonymous, Narcotics Anonymous">
+
+    <meta name="author" content="Nathan Kolpa">
+
+    <title>Meeting Finder</title>
+
     <base data-trunk-public-url/>
 
     <link data-trunk rel="copy-file" href="public/robots.txt">
-    <link data-trunk rel="copy-file" href="public/fonts/OpenSans.ttf">
+    <link data-trunk rel="copy-dir" href="public/fonts">
 
     <!--    styling-->
     <link data-trunk rel="css" href="node_modules/normalize.css/normalize.css"/>
@@ -15,7 +26,10 @@
     <link data-trunk rel="css" href="node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
 
     <!--    scripts-->
+    <link data-trunk rel="copy-file" href="node_modules/leaflet/dist/leaflet.js.map">
     <link data-trunk rel="inline" type="js" href="node_modules/leaflet/dist/leaflet.js">
+
+    <link data-trunk rel="copy-file" href="node_modules/leaflet.markercluster/dist/leaflet.markercluster.js.map">
     <link data-trunk rel="inline" type="js" href="node_modules/leaflet.markercluster/dist/leaflet.markercluster.js">
 
 
@@ -23,6 +37,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7BHG371B7Z"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
+
         function gtag() {
             dataLayer.push(arguments);
         }
@@ -36,5 +51,9 @@
 </head>
 
 <body>
+<noscript style="text-align: center">
+    <h1>This application requires javascript in order to run</h1>
+</noscript>
+
 </body>
 </html>

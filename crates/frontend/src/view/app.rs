@@ -15,7 +15,10 @@ impl Component for App {
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
-            <h1>{ "Hi" }</h1>
+            <div class="app">
+                <main>
+                </main>
+            </div>
         }
     }
 }
