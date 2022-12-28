@@ -1,5 +1,10 @@
 use yew::prelude::*;
 
+#[derive(Default, PartialEq)]
+pub struct SearchFilters {
+
+}
+
 #[function_component(Search)]
 pub fn search() -> Html {
     html! {
