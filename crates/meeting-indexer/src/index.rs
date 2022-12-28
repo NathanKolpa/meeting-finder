@@ -4,9 +4,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
 use rusqlite::{params, Connection, OpenFlags, ToSql, Transaction};
-use serde::Serialize;
 use thiserror::Error;
-use utoipa::ToSchema;
 
 use common::model::*;
 
@@ -19,12 +17,6 @@ pub struct DistanceSearch {
 #[derive(Default)]
 pub struct SearchOptions {
     pub distance: Option<DistanceSearch>,
-}
-
-#[derive(Serialize, ToSchema)]
-pub struct SearchMeeting {
-    pub meeting: Meeting,
-    pub distance: Option<f64>,
 }
 
 #[derive(Error, Debug)]

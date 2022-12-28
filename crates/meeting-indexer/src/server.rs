@@ -78,7 +78,7 @@ async fn index(
 #[openapi(
     paths(index),
     components(schemas(
-        SearchMeeting,
+        model::SearchMeeting,
         model::Meeting,
         model::OnlineOptions,
         model::MeetingTime,

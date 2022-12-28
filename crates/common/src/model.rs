@@ -1,14 +1,13 @@
-use chrono::{DateTime, Utc};
 use std::str::FromStr;
 use std::time::Duration;
 
+use chrono::{DateTime, Utc};
 #[cfg(feature = "serde")]
-use serde::Serialize;
-
+use serde::{Deserialize, Serialize};
 #[cfg(feature = "utoipa")]
 use utoipa::ToSchema;
 
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "utoipa", derive(ToSchema))]
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default)]
 pub struct Position {
@@ -25,9 +24,9 @@ impl Position {
     }
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "utoipa", derive(ToSchema))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Location {
     pub position: Option<Position>,
     pub name: Option<String>,
@@ -38,17 +37,17 @@ pub struct Location {
 }
 
 
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "utoipa", derive(ToSchema))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Contact {
     pub email: Option<String>,
     pub phone: Option<String>,
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "utoipa", derive(ToSchema))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum WeekDay {
     Monday,
     Tuesday,
@@ -86,9 +85,23 @@ impl WeekDay {
     }
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize))]
+impl ToString for WeekDay {
+    fn to_string(&self) -> String {
+        match self {
+            WeekDay::Monday => String::from("Monday"),
+            WeekDay::Tuesday => String::from("Tuesday"),
+            WeekDay::Wednesday => String::from("Wednesday"),
+            WeekDay::Thursday => String::from("Thursday"),
+            WeekDay::Friday => String::from("Friday"),
+            WeekDay::Saturday => String::from("Saturday"),
+            WeekDay::Sunday => String::from("Sunday"),
+        }
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "utoipa", derive(ToSchema))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum MeetingTime {
     #[serde(rename = "recurring")]
     Recurring {
@@ -98,7 +111,17 @@ pub enum MeetingTime {
     },
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize))]
+impl ToString for MeetingTime {
+    fn to_string(&self) -> String {
+        match self {// TODO: use display
+            MeetingTime::Recurring { hour, minute, day } => {
+                format!("Every {} at {:02}:{:02}", day.to_string(), hour, minute)
+            }
+        }
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "utoipa", derive(ToSchema))]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Organization {
@@ -121,7 +144,7 @@ impl ToString for Organization {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum OrganizationParseError {
     UnknownOrg,
 }
@@ -141,18 +164,18 @@ impl FromStr for Organization {
     }
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "utoipa", derive(ToSchema))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct OnlineOptions {
     pub url: Option<String>,
     pub notes: Option<String>,
     pub is_online: bool,
 }
 
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "utoipa", derive(ToSchema))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Meeting {
     pub name: String,
     pub org: Organization,
@@ -168,4 +191,12 @@ pub struct Meeting {
     pub time: MeetingTime,
 
     pub duration: Option<Duration>,
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "utoipa", derive(ToSchema))]
+#[derive(Debug, Clone, PartialEq)]
+pub struct SearchMeeting {
+    pub meeting: Meeting,
+    pub distance: Option<f64>,
 }

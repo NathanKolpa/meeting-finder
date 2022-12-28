@@ -720,10 +720,15 @@ name = "frontend"
 version = "0.1.0"
 dependencies = [
  "common",
- "leaflet",
+ "gloo-utils",
+ "reqwest",
+ "serde",
+ "serde-wasm-bindgen 0.4.5",
+ "thiserror",
  "wasm-bindgen",
  "web-sys",
  "yew",
+ "yew-hooks",
 ]
 
 [[package]]
@@ -907,7 +912,7 @@ dependencies = [
  "gloo-events",
  "gloo-utils",
  "serde",
- "serde-wasm-bindgen",
+ "serde-wasm-bindgen 0.3.1",
  "serde_urlencoded",
  "thiserror",
  "wasm-bindgen",
@@ -1277,17 +1282,6 @@ name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
-
-[[package]]
-name = "leaflet"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "192dea11649433cb909ff81ef99f35c075961eb75c6d401afd92d980d14e5f10"
-dependencies = [
- "js-sys",
- "wasm-bindgen",
- "web-sys",
-]
 
 [[package]]
 name = "libc"
@@ -2060,6 +2054,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde-wasm-bindgen"
+version = "0.4.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e3b4c031cd0d9014307d82b8abf653c0290fbdaeb4c02d00c63cf52f728628bf"
+dependencies = [
+ "js-sys",
+ "serde",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "serde_derive"
 version = "1.0.150"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2578,6 +2583,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eaf9f5aceeec8be17c128b2e93e031fb8a4d469bb9c4ae2d7dc1888b26887268"
 dependencies = [
  "cfg-if",
+ "serde",
  "wasm-bindgen-macro",
 ]
 
@@ -2821,6 +2827,22 @@ dependencies = [
  "wasm-bindgen-futures",
  "web-sys",
  "yew-macro",
+]
+
+[[package]]
+name = "yew-hooks"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "268e2367720311f19582235f5c021702d6be8ded13b7ee8dcacc71019d055d15"
+dependencies = [
+ "gloo",
+ "js-sys",
+ "log",
+ "serde",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+ "yew",
 ]
 
 [[package]]
