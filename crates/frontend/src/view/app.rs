@@ -10,14 +10,7 @@ pub fn app() -> Html {
     html! {
         <div class="app">
             <main>
-                <div class="meeting-finder">
-                    <div class="search">
-                        <h1>{"Find meetings in your area."}</h1>
-                        <Search />
-                        <MeetingList is_loading={true} />
-                    </div>
-                    <WorldMap />
-                </div>
+                <Finder />
                 <About api_link={config.api_url()} />
             </main>
         </div>

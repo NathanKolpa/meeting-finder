@@ -21,7 +21,7 @@ pub fn search() -> Html {
                         <option value="200">{"200 km"}</option>
                         <option value="400">{"400 km"}</option>
                         <option value="800">{"800 km"}</option>
-                        <option value="all">{"&#62; 200 km"}</option>
+                        <option value="all">{"> 200 km"}</option>
                     </select>
                 </label>
             </div>
