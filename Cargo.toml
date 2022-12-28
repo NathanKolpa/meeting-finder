@@ -1,3 +1,6 @@
+[profile.release]
+strip = true
+
 [workspace]
 
 members = [
@@ -5,3 +8,9 @@ members = [
     "crates/common"
 ]
 
+[workspace.dependencies]
+tokio  = "1.23.0"
+chrono = "0.4.23"
+thiserror = "1.0.37"
+serde = "1.0.150"
+utoipa = "2.4.2"
