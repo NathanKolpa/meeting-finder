@@ -1,20 +1,20 @@
 use yew::prelude::*;
 
-#[derive(Default)]
-pub struct About;
+pub struct About {
+    api_link: &'static str
+}
 
 impl Component for About {
     type Message = ();
     type Properties = ();
 
     fn create(_ctx: &Context<Self>) -> Self {
-        Self::default()
+        Self {
+            api_link: env!("API_URL")
+        }
     }
 
-
     fn view(&self, _ctx: &Context<Self>) -> Html {
-        let api_link = env!("API_URL");
-
         html! {
             <section class="about">
                 <h2>{"About"}</h2>
@@ -33,11 +33,11 @@ impl Component for About {
 
                 <h3>{"Project info"}</h3>
                 <p>
-                    {"This project is free and open-source, you can view the repository on "}
-                    <a href={api_link}>{"Github"}</a>
-                    {"."}
+                    {"This project is free and open-source, you can view the repository on "}<a href="https://github.com/NathanKolpa/meeting-finder">{"Github"}</a>{"."}
                     <br />
                     {"For more information on our API, visit the documentation."}
+                    <a href={self.api_link}>{"documentation"}</a>
+                    {"."}
                 </p>
             </section>
         }
