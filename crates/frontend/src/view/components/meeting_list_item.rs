@@ -4,6 +4,8 @@ use yew::prelude::*;
 
 use common::model::SearchMeeting;
 
+use crate::view::components::Logo;
+
 #[derive(Properties, PartialEq)]
 pub struct Props {
     pub meeting: Rc<SearchMeeting>,
@@ -13,7 +15,7 @@ pub struct Props {
 pub fn meeting_list_item(props: &Props) -> Html {
     html! {
         <li class="result">
-            <img class="logo" alt="Organization logo" />
+            <Logo org={props.meeting.meeting.org.clone()} />
             <div class="container">
                 <div class="inner">
                     <div class="title">

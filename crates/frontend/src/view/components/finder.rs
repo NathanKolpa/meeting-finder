@@ -1,8 +1,8 @@
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
-use crate::view::components::search::SearchFilters;
 use crate::view::components::*;
+use crate::view::components::search::SearchFilters;
 use crate::view::hooks::use_config;
 use crate::view::services::meeting_service;
 

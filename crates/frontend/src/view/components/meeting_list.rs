@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use std::rc::Rc;
 
 use yew::prelude::*;
@@ -14,7 +15,28 @@ pub struct Props {
 
 #[function_component(MeetingList)]
 pub fn meeting_list(props: &Props) -> Html {
-    let meetings = props.meetings.iter().take(props.max_size);
+    let page = use_state(|| 0);
+
+    let meetings = props.meetings.iter()
+        .skip(page.deref() * props.max_size)
+        .take(props.max_size);
+
+    let next_page = {
+        let page = page.clone();
+        Callback::from(move |_| {
+            page.set(page.deref() + 1);
+        })
+    };
+
+    let prev_page = {
+        let page = page.clone();
+        Callback::from(move |_| {
+            page.set(page.deref() - 1);
+        })
+    };
+
+    let disable_prev = page.deref().eq(&0);
+    let disable_next = page.deref().ge(&(props.meetings.len() / props.max_size));
 
     html! {
         <div class="result-list">
@@ -27,8 +49,8 @@ pub fn meeting_list(props: &Props) -> Html {
             </ul>
 
             <div class="pagination">
-                <button class="prev-page">{"Prev"}</button>
-                <button class="next-page">{"Next"}</button>
+                <button class="prev-page" disabled={disable_prev} onclick={prev_page}>{"Prev"}</button>
+                <button class="next-page" disabled={disable_next} onclick={next_page}>{"Next"}</button>
             </div>
         </div>
     }

@@ -5,6 +5,7 @@ pub use meeting_list_item::MeetingListItem;
 pub use search::Search;
 pub use spinner::Spinner;
 pub use world_map::WorldMap;
+pub use logo::Logo;
 
 mod about;
 mod finder;
@@ -13,3 +14,4 @@ mod meeting_list_item;
 mod search;
 mod spinner;
 mod world_map;
+mod logo;
