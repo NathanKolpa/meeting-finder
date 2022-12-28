@@ -5,7 +5,8 @@ strip = true
 
 members = [
     "crates/meeting-indexer",
-    "crates/common"
+    "crates/common",
+    "crates/frontend"
 ]
 
 [workspace.dependencies]
