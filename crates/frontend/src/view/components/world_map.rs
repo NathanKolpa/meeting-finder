@@ -1,16 +1,13 @@
 use gloo_utils::document;
 use wasm_bindgen::JsCast;
-use wasm_bindgen::JsValue;
 use web_sys::{Element, HtmlElement, Node};
 use yew::prelude::*;
-
-use crate::view::components::world_map::leaflet::{log, MapPoint};
 
 mod leaflet {
     use serde::{Deserialize, Serialize};
     use wasm_bindgen::prelude::*;
-    use wasm_bindgen::{JsObject, JsValue};
-    use web_sys::{Element, HtmlElement, Node};
+    use wasm_bindgen::JsValue;
+    use web_sys::HtmlElement;
 
     #[derive(Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
@@ -87,7 +84,7 @@ impl Component for WorldMap {
             zoom: 2.0,
             min_zoom: 2.0,
             zoom_control: true,
-            center: MapPoint { lat: 0.0, lng: 0.0 },
+            center: leaflet::MapPoint { lat: 0.0, lng: 0.0 },
         };
 
         let map = leaflet::map(&container, &serde_wasm_bindgen::to_value(&options).unwrap());

@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use thiserror::Error;
 
 use common::model::SearchMeeting;
@@ -11,8 +12,8 @@ pub enum MeetingApiError {
     JsonParseError,
 }
 
-pub async fn get_meetings(api: &str) -> Result<Vec<SearchMeeting>, MeetingApiError> {
-    let result: Vec<SearchMeeting> = reqwest::get(format!("{api}/meetings"))
+pub async fn get_meetings(api: &str) -> Result<Rc<Vec<Rc<SearchMeeting>>>, MeetingApiError> {
+    let result = reqwest::get(format!("{api}/meetings"))
         .await
         .map_err(|_| MeetingApiError::HttpError)?
         .json()

@@ -1,4 +1,3 @@
-use std::rc::Rc;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
@@ -13,11 +12,7 @@ pub fn finder() -> Html {
 
     let filters = use_state(|| SearchFilters::default());
 
-    let meetings = use_async(async move {
-        let result = meeting_service::get_meetings(config.api_url()).await;
-
-        result.map(|m| Rc::new(m))
-    });
+    let meetings = use_async(async move { meeting_service::get_meetings(config.api_url()).await });
 
     {
         let meetings = meetings.clone();

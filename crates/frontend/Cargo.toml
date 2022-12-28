@@ -7,7 +7,7 @@ edition = "2021"
 common = { path = "../common", features = ["serde"] }
 
 reqwest = { version = "0.11.13", features = ["json"] }
-serde.workspace = true
+serde = { workspace = true, features = ["rc"] }
 thiserror.workspace = true
 
 yew = { version = "0.20.0", features = ["csr"] }

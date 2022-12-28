@@ -3,8 +3,6 @@ use std::ops::Deref;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
-use crate::view::components::search::_Props::on_submit;
-
 #[derive(Default, PartialEq)]
 pub struct SearchFilters {
     pub location: Option<String>,
@@ -29,6 +27,7 @@ pub fn search(props: &Props) -> Html {
                 .unwrap()
                 .unchecked_into::<HtmlInputElement>()
                 .value();
+
             location.set(if value.is_empty() { None } else { Some(value) })
         })
     };
